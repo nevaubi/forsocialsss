@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """Assistant agent for the forsocialsss system.
 
-A second, separate agent: Kimi K3 on the Fireworks serverless endpoint,
-talking to Firas over the same Slack bot DM. Structurally read-only in chat
-mode (the workflow grants contents: read), with a single explicit write path:
-a message starting with "apply:" dispatches the apply workflow, which lets
-Kimi propose complete file changes and opens a pull request for Firas to
-merge. It never pushes to main.
+Kimi K3 on the Fireworks serverless endpoint, talking to Firas over the
+Slack bot DM. No command syntax: every message goes through a router that
+decides whether Firas is asking a question, instructing a change, undoing
+one, or explicitly requesting a pull request.
 
-Modes:
-  chat    Poll the DM for unhandled messages, answer them with full read
-          context (repo state, run log, deployment status), mark handled.
-          Messages that are heartbeat directives are left alone for the
-          heartbeat agent. "apply: ..." messages dispatch the apply workflow.
-  apply   Take an instruction, have Kimi emit complete replacement files,
-          push a branch, open a PR, and report back in Slack.
+- answer: grounded reply from full system state, read-only.
+- change: Kimi rewrites the target files completely, the assistant commits
+  straight to main and reports the commit. The heartbeat pulls main every
+  cycle, so changes take effect on its next fire.
+- revert: the most recent assistant commit on main is reverted.
+- pr: only when Firas explicitly asks for a pull request, the apply
+  workflow packages the change for review instead of pushing.
 
-Env (chat):  FIREWORKS_API_KEY, SLACK_BOT_TOKEN, ANTHROPIC_API_KEY,
-             GITHUB_TOKEN (actions: write, to dispatch apply)
-Env (apply): FIREWORKS_API_KEY, SLACK_BOT_TOKEN, GITHUB_TOKEN
-             (contents: write, pull-requests: write)
-Optional:    FIREWORKS_MODEL (default accounts/fireworks/models/kimi-k3)
-             ASSISTANT_MAX_TOKENS (default 2000)
+Safety is structural, not ceremonial: path traversal is blocked, the hard
+rules section of CLAUDE.md cannot be silently removed, and any edit that
+would gut most of a file is held until Firas confirms.
+
+Modes (argv[1]): chat (poller), apply (PR workflow).
+Env: FIREWORKS_API_KEY, SLACK_BOT_TOKEN, GH_STATE_TOKEN (direct pushes),
+     GITHUB_TOKEN (apply dispatch and PR creation), ANTHROPIC_API_KEY
+     (optional, live status), FIREWORKS_MODEL, ASSISTANT_MAX_TOKENS.
 """
 
 import json
@@ -43,33 +43,42 @@ FIRAS_ID = "U0BM0RF8AHM"
 REPO = "nevaubi/forsocialsss"
 HANDLED_REACTION = "robot_face"
 DEPLOYMENT_NAME = "linkedin-heartbeat"
+ASSISTANT_AUTHOR = "assistant@forsocialsss"
 
-# Exact-match or prefix directives owned by the heartbeat agent. The
-# assistant must never answer these; the heartbeat reads them each cycle.
 HEARTBEAT_EXACT = {"approve", "hold", "status", "retro now"}
 HEARTBEAT_PREFIX = ("edit:", "kill:", "posted ")
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CHAT_SYSTEM = """You are Firas Shaher's operations assistant for his autonomous LinkedIn content agent system. You are a separate model (Kimi K3) from the heartbeat agent that does the content work; your job is to keep Firas informed and answer his questions.
+ROUTER_SYSTEM = """You are Firas Shaher's operations assistant for his autonomous LinkedIn content agent system. You are a separate model (Kimi K3) from the heartbeat agent that does the content work. You keep Firas informed and, when he instructs it, you change the system directly.
 
-Voice: terse, grounded, direct. No em dashes ever. No hype, no exclamation points, no emoji unless he uses them first. Answer the question asked; do not pad.
+Voice: terse, grounded, direct. No em dashes ever. No hype, no exclamation points, no emoji unless he uses them first.
 
-You have read access to the full system state, provided below: the agent's constitution, current topics, draft queue, run log, lessons, recent commits, and the live deployment status. Ground every answer in that data. If the data does not contain the answer, say so plainly instead of guessing.
+You will receive the current system state and Firas's message. Respond with ONLY a JSON object, no markdown fences, in one of these shapes:
 
-You are read-only. You cannot change files, trigger runs, or post anything. If Firas asks you to change something, tell him to send the same request prefixed with "apply:" and you will open a pull request for his review. If he asks about heartbeat directives (approve, edit:, kill:, hold, status, posted, retro now), remind him those go to the heartbeat agent in this same DM and are picked up on its next cycle.
+1. He is asking a question, chatting, or his instruction is too ambiguous to execute safely:
+{"mode": "answer", "reply": "<your grounded answer, or one clarifying question>"}
 
-Never reveal, print, or speculate about credentials or tokens."""
+2. He is clearly instructing you to change the system (settings, strategy, weights, sources, playbook, prompts, drafts, any repo file):
+{"mode": "change", "summary": "<one line describing the change>", "reply": "<one or two lines telling him what you changed>", "files": [{"path": "<repo-relative path>", "content": "<COMPLETE new file content>"}]}
 
-APPLY_SYSTEM = """You are preparing a file change for Firas Shaher's LinkedIn content agent repository, following his explicit instruction. You will be shown the repository file listing and the contents of relevant files.
+3. He is asking to undo, revert, or roll back the last change you made:
+{"mode": "revert", "reply": "<one line confirming the revert>"}
 
-Rules:
-- Output ONLY a JSON object, no markdown fences, no commentary, with this exact shape: {"summary": "<one line describing the change>", "branch_hint": "<short-kebab-slug>", "files": [{"path": "<repo-relative path>", "content": "<complete new file content>"}]}
-- Every file you include must contain its COMPLETE new content, not a diff or fragment. Unchanged files are omitted entirely.
-- Respect the repository's own rules in CLAUDE.md: no em dashes anywhere, no fabricated data, and the hard rules section of CLAUDE.md may not be weakened.
+4. He explicitly asks for a pull request or says he wants to review before it lands:
+{"mode": "pr", "reply": "<one line saying the PR is being prepared>"}
+
+Rules for change mode:
+- Every file must contain its COMPLETE new content. Unchanged files are omitted.
 - Touch the minimum set of files that fulfills the instruction.
-- If the instruction is unsafe, contradicts CLAUDE.md hard rules, or is too ambiguous to execute, return {"summary": "REFUSED: <reason>", "branch_hint": "refused", "files": []}"""
+- Respect the repository's own rules in CLAUDE.md: no em dashes anywhere, no fabricated data. The hard rules section of CLAUDE.md may only be edited when Firas explicitly names the hard rule he wants changed.
+- Questions are never changes. "What would happen if" is a question. "Change it" is a change. When genuinely unsure, use answer mode and ask one short clarifying question.
+- If he asks you to improve a queued LinkedIn draft, edit state/queue.json directly, keeping its schema, and note in your reply that the heartbeat's edit: directive is the alternative that reruns his full voice pipeline.
 
+Ground every answer in the provided state. If the state does not contain the answer, say so plainly. Never reveal or speculate about credentials."""
+
+
+# ---------------------------------------------------------------- plumbing
 
 def http(url, method="GET", body=None, headers=None, form=False):
     if form and body is not None:
@@ -106,14 +115,40 @@ def kimi(system, messages, max_tokens=None):
         "model": os.environ.get("FIREWORKS_MODEL",
                                 "accounts/fireworks/models/kimi-k3"),
         "max_tokens": max_tokens or int(os.environ.get("ASSISTANT_MAX_TOKENS",
-                                                       "2000")),
-        "temperature": 0.4,
+                                                       "16000")),
+        "temperature": 0.3,
         "messages": [{"role": "system", "content": system}] + messages,
     }
     resp = http(FIREWORKS_URL, "POST", body,
                 {"Authorization": f"Bearer {os.environ['FIREWORKS_API_KEY'].strip()}"})
     return resp["choices"][0]["message"]["content"]
 
+
+def git(*args, check=True):
+    r = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True,
+                       text=True)
+    if check and r.returncode != 0:
+        raise RuntimeError(f"git {' '.join(args)}: {r.stderr.strip()[:400]}")
+    return r.stdout.strip()
+
+
+def push_main():
+    token = os.environ.get("GH_STATE_TOKEN", "").strip()
+    if not token:
+        raise RuntimeError("GH_STATE_TOKEN missing; cannot push changes")
+    remote = f"https://x-access-token:{token}@github.com/{REPO}.git"
+    for attempt in (1, 2):
+        r = subprocess.run(["git", "push", remote, "HEAD:main"],
+                           cwd=REPO_ROOT, capture_output=True, text=True)
+        if r.returncode == 0:
+            return
+        if attempt == 1:
+            subprocess.run(["git", "pull", "--rebase", remote, "main"],
+                           cwd=REPO_ROOT, capture_output=True, text=True)
+    raise RuntimeError(f"push failed after rebase retry: {r.stderr.strip()[:300]}")
+
+
+# ------------------------------------------------------------ read context
 
 def read_file(rel, max_chars=6000):
     path = os.path.join(REPO_ROOT, rel)
@@ -129,11 +164,6 @@ def read_file(rel, max_chars=6000):
 def tail_file(rel, lines):
     text = read_file(rel, max_chars=200000)
     return "\n".join(text.splitlines()[-lines:])
-
-
-def git(*args):
-    return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True,
-                          text=True, check=True).stdout.strip()
 
 
 def deployment_status():
@@ -170,16 +200,19 @@ def deployment_status():
 
 def build_context():
     parts = [
-        ("Constitution (CLAUDE.md)", read_file("CLAUDE.md", 5000)),
+        ("Constitution (CLAUDE.md)", read_file("CLAUDE.md", 6000)),
         ("Strategy", read_file("identity/strategy.md", 3000)),
+        ("Voice rules", read_file("identity/voice.md", 2500)),
         ("Topic board", read_file("state/topics.json", 4000)),
         ("Watchlist", read_file("state/watchlist.json", 2000)),
-        ("Draft queue", read_file("state/queue.json", 4000)),
+        ("Draft queue", read_file("state/queue.json", 5000)),
         ("Posted history", read_file("state/posted.json", 2000)),
+        ("Sources and budgets", read_file("sources/sources.md", 3500)),
         ("Run log, last 15 lines", tail_file("state/run-log.jsonl", 15)),
         ("Lessons, tail", tail_file("state/lessons.md", 40)),
         ("Recent commits", git("log", "--oneline", "-10")),
         ("Live deployment status", deployment_status()),
+        ("Repository file listing", git("ls-files")),
     ]
     return "\n\n".join(f"## {title}\n{body}" for title, body in parts)
 
@@ -193,7 +226,6 @@ def dm_channel():
     try:
         return slack("conversations.open", {"users": FIRAS_ID})["channel"]["id"]
     except RuntimeError:
-        # Fallback for tokens without im:write: find the existing DM.
         cursor = None
         while True:
             body = {"types": "im", "limit": 200}
@@ -210,6 +242,150 @@ def dm_channel():
             "could not resolve the DM channel; the Slack app needs scopes "
             "im:write and im:read (see README scope list)")
 
+
+def recent_conversation(channel, limit=12):
+    try:
+        resp = slack("conversations.history", {"channel": channel,
+                                               "limit": limit})
+        convo = []
+        for m in sorted(resp.get("messages", []), key=lambda m: float(m["ts"])):
+            text = (m.get("text") or "").strip()
+            if not text:
+                continue
+            role = "user" if m.get("user") == FIRAS_ID else "assistant"
+            convo.append({"role": role, "content": text[:2000]})
+        return convo
+    except Exception:
+        return []
+
+
+# --------------------------------------------------------------- executing
+
+def parse_plan(raw):
+    raw = raw.strip()
+    raw = re.sub(r"^```(json)?\s*|\s*```$", "", raw, flags=re.M).strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        # The model answered in prose; treat it as a plain answer.
+        return {"mode": "answer", "reply": raw[:3000]}
+
+
+def guard_change(plan, user_text):
+    """Structural safety checks. Returns None when clear, or a message when
+    the change is held for confirmation."""
+    confirming = "confirm" in user_text.lower()
+    for f in plan.get("files", []):
+        path = os.path.normpath(f.get("path", ""))
+        if path.startswith("..") or os.path.isabs(path):
+            return f"That change touches an unsafe path ({f.get('path')}), refused."
+        full = os.path.join(REPO_ROOT, path)
+        new = f.get("content", "")
+        if path == "CLAUDE.md" and "## Hard rules" not in new:
+            return ("That edit would remove the hard rules section of "
+                    "CLAUDE.md, refused. Name the specific hard rule you "
+                    "want changed and I will edit just that.")
+        if os.path.exists(full) and not confirming:
+            old_size = os.path.getsize(full)
+            if old_size > 2000 and len(new.encode()) < old_size * 0.3:
+                return (f"That would shrink {path} by more than 70 percent, "
+                        f"which usually means lost content. If that is "
+                        f"really what you want, resend with the word "
+                        f"confirm in the message.")
+    return None
+
+
+def execute_change(plan):
+    for f in plan["files"]:
+        path = os.path.normpath(f["path"])
+        full = os.path.join(REPO_ROOT, path)
+        os.makedirs(os.path.dirname(full) or REPO_ROOT, exist_ok=True)
+        with open(full, "w", encoding="utf-8") as fh:
+            fh.write(f["content"])
+        git("add", path)
+    git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
+        "commit", "-m", f"assistant: {plan.get('summary', 'change')}"[:120])
+    push_main()
+    sha = git("rev-parse", "--short", "HEAD")
+    files = ", ".join(f["path"] for f in plan["files"])
+    return (f"Done. {plan.get('summary', 'Changed')} ({files}).\n"
+            f"Commit {sha}: https://github.com/{REPO}/commit/{sha}\n"
+            f"The heartbeat picks this up on its next cycle. Say revert if "
+            f"it is wrong.")
+
+
+def execute_revert():
+    log = git("log", "--format=%H %ae %s", "-20", "main")
+    target = None
+    for line in log.splitlines():
+        sha, email, *msg = line.split(" ", 2)
+        if email == ASSISTANT_AUTHOR and not " ".join(msg).startswith(
+                "Revert"):
+            target = (sha, " ".join(msg))
+            break
+    if not target:
+        return "Nothing to revert: no recent assistant commit found on main."
+    git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
+        "revert", "--no-edit", target[0])
+    push_main()
+    sha = git("rev-parse", "--short", "HEAD")
+    return (f"Reverted: {target[1]}\n"
+            f"Commit {sha}: https://github.com/{REPO}/commit/{sha}")
+
+
+def dispatch_apply(instruction, channel):
+    token = os.environ["GITHUB_TOKEN"].strip()
+    http(
+        f"{GITHUB_URL}/repos/{REPO}/actions/workflows/assistant-apply.yml/dispatches",
+        "POST",
+        {"ref": "main",
+         "inputs": {"instruction": instruction[:1000], "channel": channel}},
+        {"Authorization": f"Bearer {token}",
+         "Accept": "application/vnd.github+json"},
+    )
+
+
+def respond(text, channel, ts):
+    """Route one message from Firas and act on it. Used by both the instant
+    listener and the fallback poller."""
+    convo = recent_conversation(channel)
+    context = build_context()
+    raw = kimi(ROUTER_SYSTEM, convo + [{
+        "role": "user",
+        "content": f"SYSTEM STATE SNAPSHOT (current):\n{context}\n\n"
+                   f"FIRAS'S MESSAGE:\n{text}",
+    }])
+    plan = parse_plan(raw)
+    mode = plan.get("mode", "answer")
+
+    if mode == "change" and plan.get("files"):
+        held = guard_change(plan, text)
+        if held:
+            reply = held
+        else:
+            try:
+                reply = execute_change(plan)
+            except Exception as e:
+                reply = f"Change failed before landing: {str(e)[:400]}"
+    elif mode == "revert":
+        try:
+            reply = execute_revert()
+        except Exception as e:
+            reply = f"Revert failed: {str(e)[:400]}"
+    elif mode == "pr":
+        dispatch_apply(text, channel)
+        reply = plan.get("reply") or ("Preparing a pull request; the link "
+                                      "lands here when it is open.")
+    else:
+        reply = plan.get("reply") or "I did not get a usable answer, try rephrasing."
+
+    slack("chat.postMessage", {"channel": channel, "text": reply[:39000],
+                               "thread_ts": ts})
+    slack("reactions.add", {"channel": channel, "name": HANDLED_REACTION,
+                            "timestamp": ts})
+
+
+# ------------------------------------------------------------------ modes
 
 def chat():
     channel = dm_channel()
@@ -231,65 +407,30 @@ def chat():
     if not pending:
         print("chat: nothing pending")
         return
-    pending.sort(key=lambda m: float(m["ts"]))
-
-    # Conversation memory: the last 12 messages of the DM, oldest first,
-    # mapped to chat roles so Kimi keeps thread continuity.
-    convo = []
-    for m in sorted(history, key=lambda m: float(m["ts"]))[-12:]:
-        text = (m.get("text") or "").strip()
-        if not text:
-            continue
-        role = "user" if m.get("user") == FIRAS_ID else "assistant"
-        convo.append({"role": role, "content": text[:2000]})
-
-    for msg in pending:
-        text = msg.get("text", "").strip()
-        if text.lower().startswith("apply:"):
-            instruction = text[len("apply:"):].strip()
-            dispatch_apply(instruction, channel)
-            slack("chat.postMessage", {
-                "channel": channel,
-                "text": "On it. Preparing a pull request for that change; "
-                        "link lands here when it is open.",
-                "thread_ts": msg["ts"],
-            })
-        else:
-            context = build_context()
-            messages = convo + [{
-                "role": "user",
-                "content": f"SYSTEM STATE SNAPSHOT (current):\n{context}\n\n"
-                           f"FIRAS'S MESSAGE:\n{text}",
-            }]
-            reply = kimi(CHAT_SYSTEM, messages).strip()
-            slack("chat.postMessage",
-                  {"channel": channel, "text": reply[:39000],
-                   "thread_ts": msg["ts"]})
-        slack("reactions.add", {"channel": channel, "name": HANDLED_REACTION,
-                                "timestamp": msg["ts"]})
-        print(f"chat: handled message {msg['ts']}")
+    for msg in sorted(pending, key=lambda m: float(m["ts"])):
+        try:
+            respond(msg.get("text", "").strip(), channel, msg["ts"])
+            print(f"chat: handled {msg['ts']}")
+        except Exception as e:
+            print(f"chat: error on {msg['ts']}: {e}")
 
 
-def dispatch_apply(instruction, channel):
-    token = os.environ["GITHUB_TOKEN"].strip()
-    http(
-        f"{GITHUB_URL}/repos/{REPO}/actions/workflows/assistant-apply.yml/dispatches",
-        "POST",
-        {"ref": "main",
-         "inputs": {"instruction": instruction[:1000], "channel": channel}},
-        {"Authorization": f"Bearer {token}",
-         "Accept": "application/vnd.github+json"},
-    )
+APPLY_SYSTEM = """You are preparing a reviewable file change for Firas Shaher's LinkedIn content agent repository, at his explicit request for a pull request. You will be shown the repository file listing and the contents of relevant files.
+
+Rules:
+- Output ONLY a JSON object, no markdown fences: {"summary": "<one line>", "branch_hint": "<short-kebab-slug>", "files": [{"path": "<repo-relative path>", "content": "<complete new file content>"}]}
+- Every file must contain its COMPLETE new content. Unchanged files are omitted.
+- Respect CLAUDE.md: no em dashes anywhere, no fabricated data, hard rules may not be weakened.
+- Touch the minimum set of files.
+- If the instruction is unsafe or too ambiguous, return {"summary": "REFUSED: <reason>", "branch_hint": "refused", "files": []}"""
 
 
 def apply_mode():
     instruction = os.environ.get("APPLY_INSTRUCTION", "").strip()
-    channel = os.environ.get("APPLY_CHANNEL", "").strip()
+    channel = os.environ.get("APPLY_CHANNEL", "").strip() or dm_channel()
     if not instruction:
         print("apply: no instruction provided")
         sys.exit(1)
-    if not channel:
-        channel = dm_channel()
 
     listing = git("ls-files")
     relevant = []
@@ -302,15 +443,13 @@ def apply_mode():
         f"FILE CONTENTS:\n\n" + "\n\n".join(relevant) +
         f"\n\nINSTRUCTION FROM FIRAS:\n{instruction}"
     )
-    raw = kimi(APPLY_SYSTEM, [{"role": "user", "content": prompt}],
-               max_tokens=16000).strip()
-    raw = re.sub(r"^```(json)?|```$", "", raw, flags=re.M).strip()
-    plan = json.loads(raw)
-
+    plan = parse_plan(kimi(APPLY_SYSTEM,
+                           [{"role": "user", "content": prompt}]))
     if plan.get("summary", "").startswith("REFUSED") or not plan.get("files"):
         slack("chat.postMessage", {
             "channel": channel,
-            "text": f"Could not prepare that change. {plan.get('summary', 'No files produced.')}",
+            "text": f"Could not prepare that change. "
+                    f"{plan.get('summary', 'No files produced.')}",
         })
         return
 
@@ -327,7 +466,7 @@ def apply_mode():
         with open(full, "w", encoding="utf-8") as fh:
             fh.write(f["content"])
         git("add", path)
-    git("-c", "user.name=assistant", "-c", "user.email=assistant@forsocialsss",
+    git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
         "commit", "-m", f"assistant: {plan['summary']}"[:120])
     git("push", "origin", branch)
 
@@ -336,8 +475,8 @@ def apply_mode():
         f"{GITHUB_URL}/repos/{REPO}/pulls", "POST",
         {"title": f"assistant: {plan['summary']}"[:120],
          "head": branch, "base": "main",
-         "body": f"Opened by the assistant agent on Firas's explicit "
-                 f"instruction:\n\n> {instruction}\n\n"
+         "body": f"Opened by the assistant agent at Firas's request:\n\n"
+                 f"> {instruction}\n\n"
                  f"Files changed: {', '.join(f['path'] for f in plan['files'])}"},
         {"Authorization": f"Bearer {token}",
          "Accept": "application/vnd.github+json"},
@@ -345,8 +484,7 @@ def apply_mode():
     slack("chat.postMessage", {
         "channel": channel,
         "text": f"Pull request ready for review: {pr['html_url']}\n"
-                f"{plan['summary']}\nMerging it applies the change; the "
-                f"heartbeat picks it up automatically on its next cycle.",
+                f"{plan['summary']}",
     })
     print(f"apply: opened {pr['html_url']}")
 

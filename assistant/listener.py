@@ -23,13 +23,9 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from assistant import (  # noqa: E402
-    CHAT_SYSTEM,
     FIRAS_ID,
-    HANDLED_REACTION,
-    build_context,
-    dispatch_apply,
     is_heartbeat_directive,
-    kimi,
+    respond,
     slack,
 )
 
@@ -76,32 +72,7 @@ def handle(client: SocketModeClient, req: SocketModeRequest):
         return
     channel = ev["channel"]
     try:
-        if text.lower().startswith("apply:"):
-            instruction = text[len("apply:"):].strip()
-            dispatch_apply(instruction, channel)
-            slack("chat.postMessage", {
-                "channel": channel,
-                "text": "On it. Preparing a pull request for that change; "
-                        "link lands here when it is open.",
-                "thread_ts": ev["ts"],
-            })
-        else:
-            context = build_context()
-            reply = kimi(CHAT_SYSTEM, [{
-                "role": "user",
-                "content": f"SYSTEM STATE SNAPSHOT (current):\n{context}\n\n"
-                           f"FIRAS'S MESSAGE:\n{text}",
-            }]).strip()
-            slack("chat.postMessage", {
-                "channel": channel,
-                "text": reply[:39000],
-                "thread_ts": ev["ts"],
-            })
-        slack("reactions.add", {
-            "channel": channel,
-            "name": HANDLED_REACTION,
-            "timestamp": ev["ts"],
-        })
+        respond(text, channel, ev["ts"])
         print(f"listener: handled {ev['ts']}", flush=True)
     except Exception as e:  # keep the listener alive on any single failure
         print(f"listener: error handling {ev['ts']}: {e}", flush=True)
