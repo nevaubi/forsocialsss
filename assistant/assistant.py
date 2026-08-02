@@ -190,7 +190,25 @@ def is_heartbeat_directive(text):
 
 
 def dm_channel():
-    return slack("conversations.open", {"users": FIRAS_ID})["channel"]["id"]
+    try:
+        return slack("conversations.open", {"users": FIRAS_ID})["channel"]["id"]
+    except RuntimeError:
+        # Fallback for tokens without im:write: find the existing DM.
+        cursor = None
+        while True:
+            body = {"types": "im", "limit": 200}
+            if cursor:
+                body["cursor"] = cursor
+            resp = slack("users.conversations", body)
+            for ch in resp.get("channels", []):
+                if ch.get("user") == FIRAS_ID:
+                    return ch["id"]
+            cursor = (resp.get("response_metadata") or {}).get("next_cursor")
+            if not cursor:
+                break
+        raise RuntimeError(
+            "could not resolve the DM channel; the Slack app needs scopes "
+            "im:write and im:read (see README scope list)")
 
 
 def chat():
