@@ -43,13 +43,16 @@ VAULT_NAME = "linkedin-heartbeat-secrets"
 DEPLOYMENT_NAME = "linkedin-heartbeat"
 MOUNT_PATH = "/workspace/forsocialsss"
 
-SECRET_NAMES = [
-    "APIFY_API_KEY",
-    "TAVILY_API_KEY",
-    "SLACK_BOT_TOKEN",
-    "GH_STATE_TOKEN",
-    "FIREWORKS_API_KEY",
-]
+# Each credential is substituted at the network boundary only for its own
+# hosts, so a leaked placeholder is useless anywhere else.
+SECRET_HOSTS = {
+    "APIFY_API_KEY": ["api.apify.com"],
+    "TAVILY_API_KEY": ["api.tavily.com"],
+    "SLACK_BOT_TOKEN": ["slack.com"],
+    "GH_STATE_TOKEN": ["github.com", "api.github.com", "*.githubusercontent.com"],
+    "FIREWORKS_API_KEY": ["api.fireworks.ai"],
+}
+SECRET_NAMES = list(SECRET_HOSTS)
 
 ALLOWED_HOSTS = [
     "api.apify.com",
@@ -168,6 +171,10 @@ def ensure_vault():
                     "type": "environment_variable",
                     "secret_name": name,
                     "secret_value": value,
+                    "networking": {
+                        "type": "limited",
+                        "allowed_hosts": SECRET_HOSTS[name],
+                    },
                 },
             },
         )
