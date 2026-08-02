@@ -27,3 +27,7 @@ Append-only editorial memory. Dated entries, newest last. Retro writes here; hea
 - Time-boxed topic dropped as designed: yc-qm-open-source-harness was archived at saturation 7 because a 187K-follower creator published the exact generic teardown its watchlist trigger named. Generalizable: when a topic's obvious angle is reachable by any large account, the trigger window is roughly 24 hours, so either escalate on the first cycle with a non-obvious angle or let it go.
 - The pulse post-search returns only the newest posts when sorted by date, which measures live conversation rather than accumulated coverage. Saturation scoring should not read a thin "right now" sample as an empty field; cross-check against tracked creators and press before calling an angle unclaimed.
 - Runtime gap logged: the Slack bot token carries chat:write only, so conversations.open, conversations.history and users.info fail with missing_scope. DM delivery works by posting to the user ID directly, but no reply keyword can be processed until im:history, im:write, im:read and users:read are added. Requested from Firas in Slack; do not work around it with any other channel.
+
+## 2026-08-02, assistant apply path verified
+
+- The assistant apply path was verified end to end: a DM starting "apply: <change>" dispatches the Assistant Apply workflow, Kimi produces complete replacement files, and a pull request opens for review. Merging the PR is the approval; the heartbeat picks the change up on the next cycle's pull of main.
