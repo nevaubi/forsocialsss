@@ -1,5 +1,7 @@
 # Routine prompt: API fire trigger
 
+Alternative runtime only. The live runtime is a Claude Managed Agents scheduled deployment (see deploy/ and prompts/agent-system.md); keep this file if you ever want to run the same agent as a Claude Code routine instead.
+
 The same routine can carry an API trigger. When fired, the POST payload text arrives as input. Handle it by class:
 
 ## Reply directives (came from Firas via the Slack webhook shortcut)

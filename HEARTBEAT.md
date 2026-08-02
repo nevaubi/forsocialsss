@@ -62,7 +62,7 @@ Maximum one escalation per cycle. If two topics qualify, take the higher fit and
 
 ## 6. Log and commit
 
-Append one run-log line (schema in state/SCHEMA.md): timestamp, mode, signals seen, active topic count, decision, reason, spend, Slack messages sent. Commit everything with the prescribed message format.
+Append one run-log line (schema in state/SCHEMA.md): timestamp, mode, signals seen, active topic count, decision, reason, spend, Slack messages sent. Commit everything with the prescribed message format, then push to origin main per the Runtime section of CLAUDE.md.
 
 ## 7. Retro trigger
 

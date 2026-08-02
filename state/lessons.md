@@ -15,3 +15,9 @@ Append-only editorial memory. Dated entries, newest last. Retro writes here; hea
 - X added as a leading-indicator source and Tavily as the continuous research and verification layer. First X pull (81 tweets) validated a filter rule now encoded in sources.md: roughly half of AI-engineering keyword results are course-bait or crypto-token promotion; discard on sight, verify everything surviving at primary sources.
 - Writing craft imported from four skill packs into playbook and the draft skill: accepted honest hook patterns (time-anchor, year-pivot, honest curiosity gap, contrarian, sparing anaphora), an expanded AI-tell scan list, and the lead-with-the-concrete rule. Rejected as bait or off-voice: comment-gating, R.I.P. formulas, emotional cold-opens, gratitude tagging, listicle counts.
 - First seeded topic board: the standout candidate is legora-wexler-litigation-ai (fit 10, saturation 3): litigation fact intelligence is literally Firas's day job.
+
+## 2026-08-02, runtime migration to Claude Managed Agents
+
+- Founder directive: run on the Claude Managed Agents API backend, not Claude Code routines. Rationale accepted: server-side cron (scheduled deployments), vault-injected secrets that the agent never sees in plaintext, native repo mounting, and API billing under Firas's control. Tradeoff logged: per-token plus per-session-hour billing instead of subscription, so the early-exit budget discipline in HEARTBEAT.md now saves real money.
+- Architecture consequence: every scheduled run is a fresh sandbox, so git push is the only persistence. The Runtime section of CLAUDE.md defines the push fallback chain and the UNPUSHED flag; losing a cycle's decisions silently is the failure mode to guard hardest against.
+- Deploy tooling lives in deploy/deploy.py plus the Deploy Agent workflow; provisioning is idempotent by resource name and rerunnable after any secret rotation.

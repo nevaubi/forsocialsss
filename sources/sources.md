@@ -10,7 +10,7 @@ Signal registry and budgets. The pulse skill reads this every cycle. Query tunin
 
 ## LinkedIn, session-free scrapers on Apify
 
-Access path: the Apify MCP connector attached to the routine. Fallback: direct HTTPS to api.apify.com with the APIFY_TOKEN environment variable. Never any cookie- or session-based LinkedIn access (hard rule 4).
+Access path: direct HTTPS to api.apify.com with an Authorization: Bearer APIFY_API_KEY header (vault-injected environment variable). Run-sync endpoints keep it to one call per actor run. Never any cookie- or session-based LinkedIn access (hard rule 4).
 
 Unit prices are observed bronze-tier per-event rates; re-check quarterly.
 
@@ -29,9 +29,9 @@ Actor: kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest ($0.000
 - Handle watch, rotate 1 query some cycles: from:askalphaxiv OR from:trailofbits OR from:ZachAbramowitz OR from:DailyDoseOfDS_ OR from:_avichawla (paper breakdowns, agent security, legal AI market). Retro maintains this list.
 - Noise filter, validated 2026-08-02 on an 81-tweet pull: roughly half of keyword results are course-listicle bait ("Don't waste 2 years...", "$500 course" framing) or crypto agent-token promotion. Discard on sight; do not let them into topic scores except as saturation evidence. Treat surviving X claims as leads to verify at primary sources, never as citable facts.
 
-## Tavily, continuous research layer (MCP connector on the routine)
+## Tavily, continuous research layer (REST with TAVILY_API_KEY)
 
-Bills against Firas's Tavily account quota; keep calls purposeful.
+POST https://api.tavily.com/search with the TAVILY_API_KEY environment variable in the JSON body. Bills against Firas's Tavily account quota; keep calls purposeful.
 
 - Every cycle: 1-2 tavily_search calls, topic news, time_range day or week: one on the highest-momentum active topic, and on alternating cycles one standing sweep of "legal AI" news.
 - Deep-dive: tavily_search advanced plus crawl/extract of the primary source behind the angle memo. Tavily is the default verification path before any claim enters a memo.
@@ -48,9 +48,9 @@ Bills against Firas's Tavily account quota; keep calls purposeful.
 - Vendor primary sources by fetch when a claim references them: anthropic.com/news, openai.com/news, blog.google/technology/ai
 - Legal tech press by fetch, headline scan: lawsitesblog.com, artificiallawyer.com, law.com/legaltechnews, complexdiscovery.com
 
-## Network allowlist for the routine environment
+## Network access under the Managed Agents runtime
 
-api.apify.com, hn.algolia.com, export.arxiv.org, anthropic.com, openai.com, blog.google, lawsitesblog.com, artificiallawyer.com, law.com, complexdiscovery.com, plus the platform's built-in web search and fetch. Tavily and Apify ride their MCP connectors.
+Sandbox egress is limited to the allowlist in deploy/deploy.py: api.apify.com, api.tavily.com, slack.com, github.com and githubusercontent, hn.algolia.com, export.arxiv.org, api.fireworks.ai. Press sites, vendor blogs, and everything else on this page are read through the built-in web_fetch and web_search tools, which are governed separately from sandbox networking.
 
 ## Source hygiene
 

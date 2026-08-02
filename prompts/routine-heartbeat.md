@@ -1,5 +1,7 @@
 # Routine prompt: scheduled heartbeat
 
+Alternative runtime only. The live runtime is a Claude Managed Agents scheduled deployment (see deploy/ and prompts/agent-system.md); keep this file if you ever want to run the same agent as a Claude Code routine instead.
+
 Paste the block below as the prompt of the scheduled routine at claude.ai/code.
 
 ---

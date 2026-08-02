@@ -24,32 +24,23 @@ Key files: CLAUDE.md (rules), HEARTBEAT.md (loop), identity/ (who, voice, strate
 
 ## Setup
 
-1. Push this repo (it ships with the initial commit ready):
+The live runtime is Claude Managed Agents: a scheduled deployment fires a fresh session on a cron cadence, the repo is mounted into the sandbox, and secrets are injected from a credential vault at the network boundary. Billing is per token plus a small per-session-hour charge on the Claude API.
 
-       git push -u origin main
+1. Repo secrets (Settings > Secrets and variables > Actions). Exact names matter; they map straight into the deploy workflow:
+   - ANTHROPIC_API_KEY, required
+   - APIFY_API_KEY, LinkedIn and X scraping
+   - TAVILY_API_KEY, research and verification
+   - FIREWORKS_API_KEY, optional auxiliary models
+   - GH_STATE_TOKEN, fine-grained PAT with contents read and write on this repo only; this is how the agent pushes state between runs
+   - SLACK_BOT_TOKEN, draft delivery and approvals (step 2)
+2. Slack app, about five minutes: api.slack.com/apps, create app from scratch in the workspace, add bot token scopes chat:write, im:write, im:history, install to workspace, copy the bot token (starts xoxb-) into the SLACK_BOT_TOKEN secret.
+3. Provision: Actions tab, Deploy Agent workflow, Run workflow with action=provision. This creates or reuses the vault, environment, agent, and scheduled deployment, and prints the next fire times. Rerun provision any time a secret is added or rotated. Use recreate=true after editing prompts/agent-system.md, deploy/deploy.py config, or the schedule.
+4. Test: run the workflow with action=run for an immediate manual cycle, then watch the session in the Claude Console (platform.claude.com) and check for the heartbeat commit and Slack DM.
+5. Operate: action=status for schedule and recent runs, pause and unpause to control the cadence. Default schedule: every 2 hours, 07:15 to 21:15 America/Chicago.
 
-2. At claude.ai, Settings > Connectors: make sure Slack, Apify, and Tavily are connected and enabled for Claude Code. All three were already connected during the build.
+Degraded modes are deliberate: without SLACK_BOT_TOKEN drafts land in outbox/ as committed markdown; without GH_STATE_TOKEN the agent cannot persist state between runs and flags every cycle as UNPUSHED, so add that one early.
 
-3. At claude.ai/code, connect GitHub and select nevaubi/forsocialsss.
-
-4. Create the routine:
-   - Repository: nevaubi/forsocialsss
-   - Prompt: paste from prompts/routine-heartbeat.md
-   - Trigger: schedule, every 2-3 hours between 07:00 and 22:00 America/Chicago. Match the frequency to your plan's daily routine allowance; API-triggered runs are exempt from that allowance.
-   - Connectors: Slack, Apify, Tavily
-   - Environment network allowlist: api.apify.com, hn.algolia.com, export.arxiv.org, anthropic.com, openai.com, blog.google, lawsitesblog.com, artificiallawyer.com
-   - Optional env var APIFY_TOKEN only if the Apify MCP connector is unavailable in the routine environment; the fallback path calls api.apify.com directly.
-
-5. Add an API trigger to the same routine. Store the fire URL and token. Optional but recommended: a Slack workflow (shortcut on your DM) that POSTs your reply text to the fire endpoint, so approvals and nudges execute immediately instead of waiting for the next tick. Manual equivalent:
-
-       curl -X POST "https://api.anthropic.com/v1/claude_code/routines/ROUTINE_ID/fire" \
-         -H "Authorization: Bearer ROUTINE_TOKEN" \
-         -H "anthropic-version: 2023-06-01" \
-         -H "anthropic-beta: experimental-cc-routine-2026-04-01" \
-         -H "Content-Type: application/json" \
-         -d '{"text": "breaking: <what happened>"}'
-
-   Routines are a research preview; header and limits may change. Check the routines docs if a call 400s.
+Alternative runtime: the same repo runs as a Claude Code routine (subscription-billed, connector-based). Prompts for that path are in prompts/routine-heartbeat.md and prompts/routine-fire.md; point a scheduled routine at this repo with the Slack, Apify, and Tavily connectors enabled.
 
 ## First runs, what to expect
 

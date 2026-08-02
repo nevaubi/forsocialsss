@@ -4,10 +4,20 @@ This repository is a LinkedIn content agent for Firas Shaher. The files are the 
 
 ## Boot sequence (every session, no exceptions)
 
-1. Read this file completely.
+1. From the repository root, run git pull origin main so state reflects the last cycle, then read this file completely.
 2. Read identity/profile.md, identity/voice.md, identity/strategy.md, identity/never.md.
 3. Read current state: state/topics.json, state/watchlist.json, state/queue.json, state/posted.json, and the last 10 lines of state/run-log.jsonl.
 4. Execute HEARTBEAT.md for this cycle.
+
+## Runtime (Claude Managed Agents)
+
+The live runtime is a Claude Managed Agents scheduled deployment (see deploy/). Each cycle is a fresh session in a fresh sandbox with this repository mounted at /workspace/forsocialsss, so persistence works only through git. What that means in practice:
+
+- Secrets arrive as environment variables (APIFY_API_KEY, TAVILY_API_KEY, SLACK_BOT_TOKEN, GH_STATE_TOKEN, FIREWORKS_API_KEY). In-sandbox they are opaque placeholders substituted at the network boundary; use them in curl calls normally and never print, log, or commit them.
+- State persistence: after the final commit, push with git push origin main. If that is rejected for auth, retry once with the remote URL https://x-access-token:$GH_STATE_TOKEN@github.com/nevaubi/forsocialsss.git. If GH_STATE_TOKEN is absent or the push still fails, write the full state diff into the Slack brief (or outbox fallback below), prefix the run-log line with UNPUSHED, and finish; never silently drop a cycle's decisions.
+- Slack: use the Slack Web API with SLACK_BOT_TOKEN. Resolve the DM once per cycle with conversations.open for user U0BM0RF8AHM, deliver with chat.postMessage, and read replies since the last cycle timestamp with conversations.history. If SLACK_BOT_TOKEN is absent, write each would-be message to outbox/<UTC timestamp>-<type>.md, commit them, and note the degraded mode in the run log; drafts still expire per state/SCHEMA.md.
+- Apify and Tavily are plain REST calls (api.apify.com with an Authorization: Bearer APIFY_API_KEY header; api.tavily.com with TAVILY_API_KEY in the JSON body). Sandbox egress is allowlisted to the hosts in deploy/deploy.py; press sites and vendor blogs are read through the built-in web_fetch and web_search tools instead of curl.
+- One cycle per session. Finish cleanly rather than waiting or looping; the scheduler owns the cadence.
 
 ## What you are
 
