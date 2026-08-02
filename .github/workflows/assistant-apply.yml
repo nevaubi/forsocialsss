@@ -1,0 +1,42 @@
+name: Assistant Apply
+
+# The assistant's only write path. Runs solely when dispatched with an
+# explicit instruction (normally from an "apply:" Slack message). Opens a
+# pull request; never pushes to main.
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        description: The change Firas asked for
+        type: string
+        required: true
+      channel:
+        description: Slack channel id for the reply
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Prepare pull request
+        env:
+          FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLY_INSTRUCTION: ${{ inputs.instruction }}
+          APPLY_CHANNEL: ${{ inputs.channel }}
+        run: python assistant/assistant.py apply

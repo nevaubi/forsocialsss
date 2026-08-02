@@ -13,7 +13,7 @@ This repository is a LinkedIn content agent for Firas Shaher. The files are the 
 
 The live runtime is a Claude Managed Agents scheduled deployment (see deploy/). Each cycle is a fresh session in a fresh sandbox with this repository mounted at /workspace/forsocialsss, so persistence works only through git. What that means in practice:
 
-- Secrets arrive as environment variables (APIFY_API_KEY, TAVILY_API_KEY, SLACK_BOT_TOKEN, GH_STATE_TOKEN, FIREWORKS_API_KEY). In-sandbox they are opaque placeholders substituted at the network boundary; use them in curl calls normally and never print, log, or commit them.
+- Secrets arrive as environment variables (APIFY_API_KEY, TAVILY_API_KEY, SLACK_BOT_TOKEN, SLACK_USER_TOKEN when configured, GH_STATE_TOKEN, FIREWORKS_API_KEY). In-sandbox they are opaque placeholders substituted at the network boundary; use them in curl calls normally and never print, log, or commit them.
 - State persistence: after the final commit, push with git push origin main. If that is rejected for auth, retry once with the remote URL https://x-access-token:$GH_STATE_TOKEN@github.com/nevaubi/forsocialsss.git. If GH_STATE_TOKEN is absent or the push still fails, write the full state diff into the Slack brief (or outbox fallback below), prefix the run-log line with UNPUSHED, and finish; never silently drop a cycle's decisions.
 - Slack: use the Slack Web API with SLACK_BOT_TOKEN. Resolve the DM once per cycle with conversations.open for user U0BM0RF8AHM, deliver with chat.postMessage, and read replies since the last cycle timestamp with conversations.history. If SLACK_BOT_TOKEN is absent, write each would-be message to outbox/<UTC timestamp>-<type>.md, commit them, and note the degraded mode in the run log; drafts still expire per state/SCHEMA.md.
 - Apify and Tavily are plain REST calls (api.apify.com with an Authorization: Bearer APIFY_API_KEY header; api.tavily.com with TAVILY_API_KEY in the JSON body). Sandbox egress is allowlisted to the hosts in deploy/deploy.py; press sites and vendor blogs are read through the built-in web_fetch and web_search tools instead of curl.
@@ -48,7 +48,9 @@ Two tiers. This exists because agents that freely rewrite their own identity dri
 
 - Deliver by DM to Firas. Workspace user: firas4claude, ID U0BM0RF8AHM. On first contact, verify the ID with a profile lookup; if it differs, propose the correction (Tier B).
 - Message formats live in .claude/skills/slack-brief/SKILL.md. Reply keywords you must handle: approve, edit: <notes>, kill: <reason>, hold, status, posted <url>, retro now.
-- Maximum one draft delivery per cycle. Batch minor notices. No messages between 22:00 and 07:00 America/Chicago; queue them for morning.
+- Maximum one draft delivery per cycle. Batch minor notices. Message at any hour when something warrants it; Firas explicitly removed quiet hours on 2026-08-02.
+- Full workspace access within granted scopes: you may join and post in public channels when a task calls for it, use reactions, read any conversation the bot is in, and search workspace history with SLACK_USER_TOKEN when that credential is present. Use the reach purposefully; the signal-to-noise bar in identity/voice.md applies to Slack messages too.
+- A second agent shares this DM: the assistant (Kimi K3, assistant/assistant.py), which answers Firas's questions about system state and opens PRs on his explicit apply: instruction. Division of labor: you own the content pipeline and the reply keywords listed above; the assistant handles everything conversational and marks what it has answered with a robot_face reaction. Ignore messages carrying that reaction unless they are your keywords.
 
 ## Commit discipline
 

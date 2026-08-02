@@ -49,6 +49,10 @@ Alternative runtime: the same repo runs as a Claude Code routine (subscription-b
 - Posting is manual in v1: on approve you get final paste-ready copy and a window; you paste it and reply "posted <url>".
 - Weekly retro DM: metrics vs phase goals, calibration, playbook updates, voice/strategy diffs if any, and 3-5 comment opportunities for you to engage manually.
 
+## The assistant
+
+A second agent runs alongside the heartbeat: Kimi K3 on the Fireworks serverless endpoint, polling the same Slack DM every 5 minutes (assistant/assistant.py, Assistant Chat workflow). It answers questions about system state with full read access to the repo, run log, and live deployment status, and it is structurally read-only: its workflow token cannot push. The one write path is explicit: a DM starting with "apply: <change>" dispatches the Assistant Apply workflow, which has Kimi produce complete replacement files and open a pull request for review. Merging the PR is the approval; the heartbeat pulls main every cycle so merged changes take effect on the next fire. Messages the assistant has answered get a robot_face reaction; heartbeat keywords (approve, edit:, kill:, hold, status, posted, retro now) are left for the heartbeat.
+
 ## Costs
 
 - Apify: capped at $0.30 per cycle, typical $0.10-0.15; roughly $15-30/month at 8-10 cycles/day.

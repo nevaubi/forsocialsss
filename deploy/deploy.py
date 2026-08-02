@@ -49,6 +49,7 @@ SECRET_HOSTS = {
     "APIFY_API_KEY": ["api.apify.com"],
     "TAVILY_API_KEY": ["api.tavily.com"],
     "SLACK_BOT_TOKEN": ["slack.com"],
+    "SLACK_USER_TOKEN": ["slack.com"],
     "GH_STATE_TOKEN": ["github.com", "api.github.com", "*.githubusercontent.com"],
     "FIREWORKS_API_KEY": ["api.fireworks.ai"],
 }
