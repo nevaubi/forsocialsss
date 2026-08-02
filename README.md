@@ -9,7 +9,7 @@ A LinkedIn content agent that runs on Claude Code routines. It monitors Firas's 
       -> CLAUDE.md (constitution) -> HEARTBEAT.md (one cycle)
          0 orient   read state + run log
          1 inbox    handle Slack replies: approve / edit / kill / hold / status
-         2 scan     pulse skill: HN, arXiv, legal tech press, Apify LinkedIn scrapers (budgeted)
+         2 scan     pulse skill: HN, arXiv, legal tech press, Tavily news, Apify LinkedIn + X scrapers (budgeted)
          3 decide   score topics: momentum, saturation, fit -> ignore / watchlist / escalate
          4 escalate deep-dive skill -> draft skill -> slack-brief skill (max 1 per cycle)
          5 governor cadence: 1 post per 2 days target, 20h min gap, quiet hours
@@ -28,7 +28,7 @@ Key files: CLAUDE.md (rules), HEARTBEAT.md (loop), identity/ (who, voice, strate
 
        git push -u origin main
 
-2. At claude.ai, Settings > Connectors: make sure Slack and Apify are connected and enabled for Claude Code. Both were already connected during the build.
+2. At claude.ai, Settings > Connectors: make sure Slack, Apify, and Tavily are connected and enabled for Claude Code. All three were already connected during the build.
 
 3. At claude.ai/code, connect GitHub and select nevaubi/forsocialsss.
 
@@ -36,7 +36,7 @@ Key files: CLAUDE.md (rules), HEARTBEAT.md (loop), identity/ (who, voice, strate
    - Repository: nevaubi/forsocialsss
    - Prompt: paste from prompts/routine-heartbeat.md
    - Trigger: schedule, every 2-3 hours between 07:00 and 22:00 America/Chicago. Match the frequency to your plan's daily routine allowance; API-triggered runs are exempt from that allowance.
-   - Connectors: Slack, Apify
+   - Connectors: Slack, Apify, Tavily
    - Environment network allowlist: api.apify.com, hn.algolia.com, export.arxiv.org, anthropic.com, openai.com, blog.google, lawsitesblog.com, artificiallawyer.com
    - Optional env var APIFY_TOKEN only if the Apify MCP connector is unavailable in the routine environment; the fallback path calls api.apify.com directly.
 

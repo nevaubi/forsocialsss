@@ -30,3 +30,16 @@ Update entries with evidence, never silently. Never delete a prior; supersede it
 ## Change log
 
 - 2026-08-02: initial priors compiled from 2026 industry analyses (connectsafely.ai, digitalapplied.com, Hootsuite, teract.ai, meet-lea.com, postiv.ai, dataslayer.ai). Confidence moderate; sources conflict on the link-in-comments question. Nothing here is law until validated locally.
+
+## Craft library (imported 2026-08-02 from writing skill packs; style intel, prior status)
+
+- prior: sweet-spot text length restated as 900-1300 characters, consistent with the 150-300 word rule above; re-hook before the fold when repurposing anything longer.
+- prior: lead with the concrete thing (artifact, number, event, output) and explain after the example, never before it. Proof replaces adjectives.
+- prior: the specificity upgrade beats the general claim: "teams ship 14 features a quarter and move no metric" outperforms "teams prioritize badly". Apply it during self-review to any generic sentence.
+- Hook pattern menu and the rejected-as-bait list live in .claude/skills/draft/SKILL.md; rejections (comment-gating, R.I.P. formulas, emotional cold-opens, gratitude tagging, listicle counts) stand regardless of their engagement numbers because never.md outranks the playbook.
+- AI-tell scan list (also in the draft skill): "not just X, it's Y", stacked triads, "here's the kicker", "let's unpack", hedging stacks, uniform sentence rhythm, comment-farming closers, throat-clearing openers.
+- observed 2026-08-02: on X, AI-engineering keyword feeds are dominated by course-listicle bait accounts recycling identical formulas ("Don't waste 2 years...", timestamp menus, "$500 course" comparisons). Useful as saturation signal and as an anti-style reference; never as substance.
+
+## Change log (continued)
+
+- 2026-08-02: craft library imported and reconciled with voice/never rules; conflicting formulas rejected rather than adopted.

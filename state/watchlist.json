@@ -1,4 +1,26 @@
 {
-  "updated": null,
-  "items": []
+  "updated": "2026-08-02T14:30:00-05:00",
+  "items": [
+    {
+      "slug": "agent-memory-research",
+      "trigger": "escalate if the Metis paper gets a major-lab follow-up, a vendor ships native memory, or 3+ tracked creators post on agent memory",
+      "added": "2026-08-02T14:30:00-05:00",
+      "expires": "2026-08-09T14:30:00-05:00",
+      "notes": "P2, fit 8, early"
+    },
+    {
+      "slug": "openai-astra-multi-agent",
+      "trigger": "escalate immediately on official OpenAI announcement or the math-results report publishing; leak-stage coverage is P3-risky",
+      "added": "2026-08-02T14:30:00-05:00",
+      "expires": "2026-08-16T14:30:00-05:00",
+      "notes": "verify before drafting"
+    },
+    {
+      "slug": "yc-qm-open-source-harness",
+      "trigger": "next cycle only: escalate if the governance/audit teardown angle is still unclaimed among tracked creators, else drop",
+      "added": "2026-08-02T14:30:00-05:00",
+      "expires": "2026-08-04T14:30:00-05:00",
+      "notes": "saturating fast"
+    }
+  ]
 }

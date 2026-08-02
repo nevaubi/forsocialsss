@@ -12,32 +12,48 @@ Signal registry and budgets. The pulse skill reads this every cycle. Query tunin
 
 Access path: the Apify MCP connector attached to the routine. Fallback: direct HTTPS to api.apify.com with the APIFY_TOKEN environment variable. Never any cookie- or session-based LinkedIn access (hard rule 4).
 
-Unit prices below are the observed bronze-tier per-event rates; re-check them quarterly.
+Unit prices are observed bronze-tier per-event rates; re-check quarterly.
 
 1. harvestapi/linkedin-post-search ($0.002 per post): the trend corpus. Per cycle: at most 2 searchQueries, maxPosts 15 each, postedLimit past-24h, sortBy date. Choose queries from active topic keywords first, then rotate the seed pool below.
 2. harvestapi/linkedin-profile-posts ($0.002 per post): tracked-creator sweep. Per cycle: at most 10 creators, round-robin through sources/creators.json using rotation_cursor, maxPosts 3 each, postedLimit past-week, includeReposts false.
-3. harvestapi/linkedin-post-comments ($0.002 per comment): deep-dive only. At most 2 posts, maxItems 20 each. Purpose: what practitioners are actually asking about the topic.
-4. harvestapi/linkedin-profile-search: creator URL resolution during bootstrap only. searchQuery = name plus strongest keyword, maxItems 3, at most 5 resolutions per cycle.
+3. harvestapi/linkedin-post-comments ($0.002 per comment): deep-dive only. At most 2 posts, maxItems 20 each.
+4. harvestapi/linkedin-profile-search: creator URL resolution during bootstrap only. maxItems 3, at most 5 resolutions per cycle.
 5. harvestapi/linkedin-profile-posts on Firas's own profile (https://www.linkedin.com/in/firas-shaher/): retro only, weekly, scrapeComments true, maxComments 25.
 
-## Seed query pool (rotate at most 2 per cycle; retro tunes)
+## X (Twitter), session-free via Apify
 
-"multi-agent systems", "context engineering", "AI agents production", "agent memory", "AI evals", "RAG retrieval quality", "legal AI", "litigation technology", "law firm AI adoption", "AI compliance audit", "Claude Code", "AI agents finance research"
+Actor: kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest ($0.00022 per tweet). Purpose: earliest signal on AI engineering discourse; X leads LinkedIn by 1-3 days on most technical topics.
 
-## Non-LinkedIn sources, free, every cycle
+- Per cycle: at most 2 searchTerms, maxItems 30 total, queryType Top.
+- Query template: "<topic phrase>" min_faves:<floor> -filter:retweets lang:en since:<48h ago date>. Floors: broad terms like "AI agents" use min_faves:400, mid terms like "multi-agent" or "context engineering" use 100, niche terms like "legal AI" use 40.
+- Handle watch, rotate 1 query some cycles: from:askalphaxiv OR from:trailofbits OR from:ZachAbramowitz OR from:DailyDoseOfDS_ OR from:_avichawla (paper breakdowns, agent security, legal AI market). Retro maintains this list.
+- Noise filter, validated 2026-08-02 on an 81-tweet pull: roughly half of keyword results are course-listicle bait ("Don't waste 2 years...", "$500 course" framing) or crypto agent-token promotion. Discard on sight; do not let them into topic scores except as saturation evidence. Treat surviving X claims as leads to verify at primary sources, never as citable facts.
 
-- Hacker News (Algolia API): https://hn.algolia.com/api/v1/search_by_date?tags=story&query=QUERY&numericFilters=points%3E20 for pillar queries, plus the front page via https://hn.algolia.com/api/v1/search?tags=front_page
-- arXiv API: http://export.arxiv.org/api/query?search_query=cat:cs.AI+OR+cat:cs.CL&sortBy=submittedDate&sortOrder=descending&max_results=15 (scan titles and abstracts only)
-- Vendor primary sources by fetch when a claim references them: anthropic.com/news, openai.com/news, blog.google/technology/ai. Verify at the primary source before citing anything.
-- Legal tech press by fetch, headline scan: lawsitesblog.com, artificiallawyer.com
-- Platform web search: verification and why-now context during deep-dive. Not a primary trend source.
+## Tavily, continuous research layer (MCP connector on the routine)
+
+Bills against Firas's Tavily account quota; keep calls purposeful.
+
+- Every cycle: 1-2 tavily_search calls, topic news, time_range day or week: one on the highest-momentum active topic, and on alternating cycles one standing sweep of "legal AI" news.
+- Deep-dive: tavily_search advanced plus crawl/extract of the primary source behind the angle memo. Tavily is the default verification path before any claim enters a memo.
+- tavily_research: reserved for retro-level questions at most once weekly; it is the expensive call.
+
+## Seed query pool (rotate at most 2 per cycle per platform; retro tunes)
+
+"AI architecture", "agent harness", "multi-agent systems", "context engineering", "agent memory", "AI evals", "AI agents production", "legal AI", "litigation AI", "litigation technology", "law firm AI adoption", "legal tech acquisition", "AI compliance audit", "AI agent security"
+
+## Non-LinkedIn free sources, every cycle
+
+- Hacker News (Algolia API): https://hn.algolia.com/api/v1/search_by_date?tags=story&query=QUERY&numericFilters=points%3E20 plus front page via https://hn.algolia.com/api/v1/search?tags=front_page
+- arXiv API: http://export.arxiv.org/api/query?search_query=cat:cs.AI+OR+cat:cs.CL&sortBy=submittedDate&sortOrder=descending&max_results=15 (titles and abstracts only)
+- Vendor primary sources by fetch when a claim references them: anthropic.com/news, openai.com/news, blog.google/technology/ai
+- Legal tech press by fetch, headline scan: lawsitesblog.com, artificiallawyer.com, law.com/legaltechnews, complexdiscovery.com
 
 ## Network allowlist for the routine environment
 
-api.apify.com, hn.algolia.com, export.arxiv.org, anthropic.com, openai.com, blog.google, lawsitesblog.com, artificiallawyer.com, plus the platform's built-in web search and fetch.
+api.apify.com, hn.algolia.com, export.arxiv.org, anthropic.com, openai.com, blog.google, lawsitesblog.com, artificiallawyer.com, law.com, complexdiscovery.com, plus the platform's built-in web search and fetch. Tavily and Apify ride their MCP connectors.
 
 ## Source hygiene
 
-- Primary sources outrank coverage. A claim sourced only to a growth blog is a prior, not a fact.
+- Primary sources outrank coverage. A claim sourced only to a growth blog or an X thread is a prior, not a fact.
 - Every signal record keeps its URL. Drafts cite only from the angle memo.
 - A source that returns nothing useful for 14 consecutive days gets flagged in the retro digest for pruning.

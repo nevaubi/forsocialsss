@@ -1,4 +1,116 @@
 {
-  "updated": null,
-  "topics": []
+  "updated": "2026-08-02T14:30:00-05:00",
+  "topics": [
+    {
+      "slug": "legora-wexler-litigation-ai",
+      "label": "Legora acquires Wexler: litigation fact intelligence consolidation",
+      "pillar": "P1",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:00:00-05:00",
+      "momentum": 6,
+      "saturation": 3,
+      "fit": 10,
+      "signal_count_24h": 6,
+      "sources": [
+        "https://www.businessinsider.com/legora-acquires-legal-ai-startup-wexler-consolidation-2026-7",
+        "https://www.law.com/legaltechnews/2026/07/29/legora-acquires-ai-powered-litigation-startup-wexler-",
+        "https://complexdiscovery.com/legora-to-acquire-wexler-as-fact-intelligence-moves-into-the-legal-ai-workspace",
+        "https://x.com/ZachAbramowitz/status/2082418678063100385",
+        "https://x.com/winstonweinberg/status/2082844578730971325"
+      ],
+      "notes": "Legora ($5.6B) 5th acquisition of 2026; Wexler builds case chronologies/fact verification at 1M+ docs per case, claims 75% review-time cut. Legal AI shifting from transactional to disputes. Harvey took Goldman/JPM fund investment same week and earned AIUC-1 cert. Firas builds litigation intelligence at a mass tort firm: full standing. Angle open: what fact-chronology extraction actually takes at scale (ETL, verification, audit trails), pattern-level.",
+      "status": "active"
+    },
+    {
+      "slug": "harness-engineering-stack",
+      "label": "Harness engineering: prompt/context/harness/loop/graph layer discourse",
+      "pillar": "P2",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:00:00-05:00",
+      "momentum": 7,
+      "saturation": 4,
+      "fit": 10,
+      "signal_count_24h": 8,
+      "sources": [
+        "https://x.com/_avichawla/status/2082744897246044232",
+        "https://x.com/marfinxx/status/2082892144520400922",
+        "https://x.com/marfinxx/status/2083162810259767478",
+        "https://x.com/ArchiveExplorer/status/2083183981491597337",
+        "https://x.com/cyrilXBT/status/2083076945797874141"
+      ],
+      "notes": "Layered-stack framing (prompt -> context -> harness -> loop -> graph) getting massive engagement; Meta/Stanford harness paper, DeepMind AutoHarness, Anthropic agents-team production framework video. Direct extension of Firas's published Loop Engineering post. Angle open: the production/regulated version (verification gates, audit, sandboxing) that the discourse skips.",
+      "status": "active"
+    },
+    {
+      "slug": "openai-astra-multi-agent",
+      "label": "OpenAI Astra: long-horizon multi-agent model family, DC preview",
+      "pillar": "P3",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:00:00-05:00",
+      "momentum": 9,
+      "saturation": 6,
+      "fit": 8,
+      "signal_count_24h": 10,
+      "sources": [
+        "https://x.com/wallstengine/status/2083353809980666289",
+        "https://x.com/mark_k/status/2083489012338053461",
+        "https://x.com/daniel_mac8/status/2083339147637305488"
+      ],
+      "notes": "The Information: Astra multi-agent family for long-running tasks, demoed to DC policymakers, 10 claimed math results with Lean certificates, possibly GPT-6, possibly first model under federal pre-release review. X-saturated among news accounts; LinkedIn less so. Angles: (a) long-horizon multi-agent validates loop engineering thesis; (b) pre-release regulatory review through a compliance-architecture lens. Verify at The Information/primary before drafting; leak-stage claims.",
+      "status": "active"
+    },
+    {
+      "slug": "yc-qm-open-source-harness",
+      "label": "YC open-sources QM company-wide multi-agent harness",
+      "pillar": "P2",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:00:00-05:00",
+      "momentum": 8,
+      "saturation": 5,
+      "fit": 8,
+      "signal_count_24h": 3,
+      "sources": [
+        "https://x.com/ycombinator/status/2083243960684908768",
+        "https://x.com/eve_bouff/status/2083251012673094031"
+      ],
+      "notes": "MIT-licensed, cloud-first, Slack + web UI, used across accounting/legal/events/engineering at YC. 11.5k likes on announcement; teardown wave incoming, so the generic take will saturate fast. Surviving angle: evaluate its governance/audit surface for regulated-org adoption. Time-boxed: escalate next cycle or drop.",
+      "status": "active"
+    },
+    {
+      "slug": "agent-security-incidents",
+      "label": "Agent security: sandbox escapes, rogue-agent leaks, offensive AI research",
+      "pillar": "P1",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:00:00-05:00",
+      "momentum": 7,
+      "saturation": 3,
+      "fit": 9,
+      "signal_count_24h": 4,
+      "sources": [
+        "https://x.com/MTSlive/status/2083323442074673630",
+        "https://x.com/PixelButts/status/2083216589290364988",
+        "https://x.com/trailofbits/status/2083145852873261430",
+        "https://x.com/ihteshamali/status/2083560291535933744"
+      ],
+      "notes": "Reuters-reported OpenAI finding of agents escaping sandboxed test environments; Riot repo leak attributed to rogue agents; Trail of Bits multi-agent hijack research; Open-Kritt open-source AI security bounty system. Angle: the controls Firas already builds (RBAC, immutable audit, sandbox isolation, permission gating) are the difference between demo agents and deployable ones. Verify the Reuters piece at source before use.",
+      "status": "active"
+    },
+    {
+      "slug": "agent-memory-research",
+      "label": "Native agent memory: Metis memory foundation model, context isolation",
+      "pillar": "P2",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:00:00-05:00",
+      "momentum": 5,
+      "saturation": 3,
+      "fit": 8,
+      "signal_count_24h": 2,
+      "sources": [
+        "https://x.com/askalphaxiv/status/2083255427421134891",
+        "https://x.com/xvoon0/status/2082929795143504185"
+      ],
+      "notes": "Metis paper: memory native to the transformer via dynamic layer states instead of external RAG. Plus context-isolation patterns for multi-agent (role envelopes, handoff receipts, blind review). Firas designs agentic memory professionally. Early; watch.",
+      "status": "active"
+    }
+  ]
 }

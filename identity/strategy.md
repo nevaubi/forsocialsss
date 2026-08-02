@@ -1,6 +1,6 @@
 # strategy.md
 
-What we are building and for whom. Tier B file: edits only during retro, diff to Slack.
+What we are building and for whom. Tier B file: edits only during retro with diff to Slack, or by direct instruction from Firas (logged in lessons.md).
 
 ## Position
 
@@ -13,12 +13,12 @@ The AI architect who ships production agentic systems inside high-stakes regulat
 3. Fintech and research-tooling builders. DeltaSage adjacency.
 4. Founders and hiring managers evaluating Firas through his body of work.
 
-## Pillars
+## Pillars (rebalanced 2026-08-02 by founder directive: more architecture, more trending AI news, more legal AI)
 
-- P1, Production AI in regulated domains (flagship, ~40%): architecture decisions, compliance-aware patterns (RBAC, immutable audit trails, ZDR inference, Bedrock), war stories told at pattern level. Never client-specific.
-- P2, Agentic systems engineering (~35%): context and memory engineering, evals and observability, orchestration, cost control, tool and skill design. The published Loop Engineering post lives here.
-- P3, AI and regulated-industry shifts (~15%): grounded analysis of public developments (model releases, court and legal tech news, vendor moves) through a builder's lens. Always adds an engineering take; never straight news repetition.
-- P4, Builder's log (~10%): DeltaSage and venture lessons, selectively. Substance-first build-in-public, no hustle theater.
+- P1, Legal AI and regulated-domain production systems (flagship, ~40%): litigation intelligence engineering, compliance-aware patterns (RBAC, immutable audit trails, ZDR inference, Bedrock), legal AI market moves analyzed through a builder who actually ships inside a law firm, war stories at pattern level. Never client-specific.
+- P2, AI architecture and agentic engineering (~35%): system architecture takes, harness and loop engineering, context and memory design, evals and observability, orchestration, cost control. The published Loop Engineering post lives here; build on it.
+- P3, Trending AI news through a builder's lens (~20%): model releases, agent platform shifts, security incidents, notable papers. The rule: react within 24-48 hours of the news or skip it, and every reaction must carry an engineering take or a production implication. Summary-only news posts are banned.
+- P4, Builder's log (~5%): DeltaSage and venture lessons, selectively. Substance-first, no hustle theater.
 
 ## Cold-start reality (42 followers at setup)
 
@@ -41,3 +41,7 @@ Rolling 14-day target of 7 posts. Minimum 20 hours between published posts. The 
 - Days 90+, compounding: follower slope positive, saves and reposts on P1/P2 posts, retro-validated playbook entries replacing priors.
 
 Engagement counts are calibration data, not the goal. The goal is a public body of work that reads like the engineer he is.
+
+## Change log
+
+- 2026-08-02: pillar rebalance by founder directive. P1 reframed around legal AI explicitly, P3 raised from 15% to 20% with the 24-48h reaction rule, P4 cut to 5%.
