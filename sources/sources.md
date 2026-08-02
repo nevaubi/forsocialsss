@@ -14,7 +14,7 @@ Access path: direct HTTPS to api.apify.com with an Authorization: Bearer APIFY_A
 
 Unit prices are observed bronze-tier per-event rates; re-check quarterly.
 
-1. harvestapi/linkedin-post-search ($0.002 per post): the trend corpus. Per cycle: at most 2 searchQueries, maxPosts 15 each, postedLimit past-24h, sortBy date. Choose queries from active topic keywords first, then rotate the seed pool below.
+1. harvestapi/linkedin-post-search ($0.002 per post): the trend corpus. Per cycle: at most 2 searchQueries, maxPosts 15 each, postedLimit past-24h, sortBy date. Choose queries from active topic keywords first, then rotate the seed pool below. Tuning note, observed 2026-08-02 (postedLimit week, sortBy date, 2 queries, 30 posts): every returned post was under two hours old, so sortBy date makes postedLimit almost irrelevant and gives a "what is being posted right now" sample. That is the right instrument for live saturation and the wrong one for finding the week's best posts on a topic; use sortBy relevance when the question is who owns an angle already.
 2. harvestapi/linkedin-profile-posts ($0.002 per post): tracked-creator sweep. Per cycle: at most 10 creators, round-robin through sources/creators.json using rotation_cursor, maxPosts 3 each, postedLimit past-week, includeReposts false.
 3. harvestapi/linkedin-post-comments ($0.002 per comment): deep-dive only. At most 2 posts, maxItems 20 each.
 4. harvestapi/linkedin-profile-search: creator URL resolution during bootstrap only. maxItems 3, at most 5 resolutions per cycle.

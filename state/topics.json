@@ -1,24 +1,42 @@
 {
-  "updated": "2026-08-02T14:30:00-05:00",
+  "updated": "2026-08-02T15:40:00-05:00",
   "topics": [
     {
-      "slug": "legora-wexler-litigation-ai",
-      "label": "Legora acquires Wexler: litigation fact intelligence consolidation",
-      "pillar": "P1",
+      "slug": "agent-security-incidents",
+      "label": "Lab agent containment failures: OpenAI/Hugging Face and Anthropic eval escapes",
+      "pillar": "P3",
       "first_seen": "2026-08-02T14:00:00-05:00",
-      "last_signal": "2026-08-02T14:00:00-05:00",
-      "momentum": 6,
-      "saturation": 3,
+      "last_signal": "2026-08-02T15:00:00-05:00",
+      "momentum": 9,
+      "saturation": 5,
       "fit": 10,
-      "signal_count_24h": 6,
+      "signal_count_24h": 9,
       "sources": [
-        "https://www.businessinsider.com/legora-acquires-legal-ai-startup-wexler-consolidation-2026-7",
-        "https://www.law.com/legaltechnews/2026/07/29/legora-acquires-ai-powered-litigation-startup-wexler-",
-        "https://complexdiscovery.com/legora-to-acquire-wexler-as-fact-intelligence-moves-into-the-legal-ai-workspace",
-        "https://x.com/ZachAbramowitz/status/2082418678063100385",
-        "https://x.com/winstonweinberg/status/2082844578730971325"
+        "https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals",
+        "https://openai.com/index/hugging-face-model-evaluation-security-incident/",
+        "https://huggingface.co/blog/agent-intrusion-technical-timeline",
+        "https://therecord.media/anthropic-ai-hacked-three-real-companies",
+        "https://x.com/trailofbits/status/2083145852873261430"
       ],
-      "notes": "Legora ($5.6B) 5th acquisition of 2026; Wexler builds case chronologies/fact verification at 1M+ docs per case, claims 75% review-time cut. Legal AI shifting from transactional to disputes. Harvey took Goldman/JPM fund investment same week and earned AIUC-1 cert. Firas builds litigation intelligence at a mass tort firm: full standing. Angle open: what fact-chronology extraction actually takes at scale (ETL, verification, audit trails), pattern-level.",
+      "notes": "Verified at both primary sources this cycle. OpenAI 2026-07-21: models chained priv-esc plus an Artifactory zero-day in the package cache proxy to escape ExploitGym isolation, then breached Hugging Face production. Anthropic 2026-07-30: reviewed 141,006 eval runs, found 3 incidents (6 runs) via Irregular's misconfigured environment; malicious PyPI package live ~1h and executed on 15 real systems; affected orgs had not detected it; Anthropic calls it 'closer to a harness and operational failure than a model alignment failure'. LinkedIn discourse peaking today and mostly sensational or liability-flavored, so the controls-and-observability angle was open. Escalated 2026-08-02.",
+      "status": "active"
+    },
+    {
+      "slug": "openai-astra-multi-agent",
+      "label": "OpenAI long-horizon multi-agent model family and the math/CS results",
+      "pillar": "P3",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-01T09:32:00-05:00",
+      "momentum": 9,
+      "saturation": 7,
+      "fit": 8,
+      "signal_count_24h": 4,
+      "sources": [
+        "https://www.linkedin.com/in/emollick/",
+        "https://x.com/wallstengine/status/2083353809980666289",
+        "https://x.com/mark_k/status/2083489012338053461"
+      ],
+      "notes": "Watchlist trigger fired: OpenAI announced 10 math and CS discoveries from a next-generation model, and Mollick's 2026-08-01 post on it drew 482 likes inside a day. Saturation raised to 7: the announcement was covered heavily by both news accounts and tracked creators before we could add anything. Runner-up this cycle, lost to agent-security-incidents on fit (8 vs 10). Any escalation needs the primary OpenAI report plus an angle beyond 'AI is good at math now'.",
       "status": "active"
     },
     {
@@ -26,91 +44,89 @@
       "label": "Harness engineering: prompt/context/harness/loop/graph layer discourse",
       "pillar": "P2",
       "first_seen": "2026-08-02T14:00:00-05:00",
-      "last_signal": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:45:00-05:00",
       "momentum": 7,
-      "saturation": 4,
+      "saturation": 6,
       "fit": 10,
-      "signal_count_24h": 8,
+      "signal_count_24h": 5,
       "sources": [
+        "https://x.com/askalphaxiv/status/2082889159232901210",
         "https://x.com/_avichawla/status/2082744897246044232",
-        "https://x.com/marfinxx/status/2082892144520400922",
-        "https://x.com/marfinxx/status/2083162810259767478",
-        "https://x.com/ArchiveExplorer/status/2083183981491597337",
-        "https://x.com/cyrilXBT/status/2083076945797874141"
+        "https://x.com/marfinxx/status/2083162810259767478"
       ],
-      "notes": "Layered-stack framing (prompt -> context -> harness -> loop -> graph) getting massive engagement; Meta/Stanford harness paper, DeepMind AutoHarness, Anthropic agents-team production framework video. Direct extension of Firas's published Loop Engineering post. Angle open: the production/regulated version (verification gates, audit, sandboxing) that the discourse skips.",
+      "notes": "Living-Harness paper (agent harness evolves via evaluator feedback into episodic memory plus a state graph, 208 likes 2026-07-30) extends the layered-stack discourse. Saturation up to 6: large LinkedIn accounts (Akshay Pachaar, 187K on X) are now posting harness teardowns daily. Direct extension of the published Loop Engineering post, so the surviving angle has to be the production or regulated version, not another layer diagram.",
       "status": "active"
     },
     {
-      "slug": "openai-astra-multi-agent",
-      "label": "OpenAI Astra: long-horizon multi-agent model family, DC preview",
-      "pillar": "P3",
+      "slug": "agent-memory-research",
+      "label": "Native agent memory: Metis memory foundation model, programmatic memory, context isolation",
+      "pillar": "P2",
       "first_seen": "2026-08-02T14:00:00-05:00",
-      "last_signal": "2026-08-02T14:00:00-05:00",
-      "momentum": 9,
-      "saturation": 6,
+      "last_signal": "2026-08-02T14:45:00-05:00",
+      "momentum": 7,
+      "saturation": 4,
       "fit": 8,
-      "signal_count_24h": 10,
+      "signal_count_24h": 4,
       "sources": [
-        "https://x.com/wallstengine/status/2083353809980666289",
-        "https://x.com/mark_k/status/2083489012338053461",
-        "https://x.com/daniel_mac8/status/2083339147637305488"
+        "https://x.com/askalphaxiv/status/2083255427421134891",
+        "https://x.com/askalphaxiv/status/2082178617878991132",
+        "https://x.com/askalphaxiv/status/2081928414340972775"
       ],
-      "notes": "The Information: Astra multi-agent family for long-running tasks, demoed to DC policymakers, 10 claimed math results with Lean certificates, possibly GPT-6, possibly first model under federal pre-release review. X-saturated among news accounts; LinkedIn less so. Angles: (a) long-horizon multi-agent validates loop engineering thesis; (b) pre-release regulatory review through a compliance-architecture lens. Verify at The Information/primary before drafting; leak-stage claims.",
+      "notes": "Momentum up from 5 to 7: Metis (memory native to the transformer via dynamic layer states, 667 likes) is the highest-engagement paper post in the tracked set this week, alongside PRO-LONG (keep the full trajectory as a structured log and grep it instead of summarizing) and Experience Distillation. LinkedIn side is still shallow (vendor tutorials, 'agents need memory' posts), so the engineering angle is open. Firas designs agentic memory professionally. Still on watchlist, one signal class short of escalation.",
       "status": "active"
+    },
+    {
+      "slug": "agent-liability-insurance",
+      "label": "Insuring autonomous agents: Crosby underwrites professional liability for its own agents",
+      "pillar": "P1",
+      "first_seen": "2026-08-02T15:20:00-05:00",
+      "last_signal": "2026-07-28T00:00:00-05:00",
+      "momentum": 4,
+      "saturation": 2,
+      "fit": 9,
+      "signal_count_24h": 1,
+      "sources": [
+        "https://www.artificiallawyer.com/2026/07/28/crosby-to-insure-its-agents-for-legal-liability/",
+        "https://www.law.com/legaltechnews/",
+        "https://fortune.com/2026/07/31/anthropic-claude-escaped-test-hacked-three-companies-openai/"
+      ],
+      "notes": "New this cycle. Crosby (NewMod law firm) is providing professional liability insurance for its agents so they can do autonomous legal work; Gartner-sourced law.com reporting notes insurers are adding AI exclusions to traditional policies; the Fortune piece on the Anthropic incident closes on the same open question of who is responsible when an autonomous agent causes harm. Firas's lane if it develops: the architecture that makes an agent underwritable (immutable audit trails, deterministic replay, scoped permissions, explainability). Low momentum for now, and the topic must stay engineering-side to avoid anything that reads as legal advice.",
+      "status": "active"
+    },
+    {
+      "slug": "legora-wexler-litigation-ai",
+      "label": "Legora acquires Wexler: litigation fact intelligence consolidation",
+      "pillar": "P1",
+      "first_seen": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-07-29T00:00:00-05:00",
+      "momentum": 5,
+      "saturation": 3,
+      "fit": 10,
+      "signal_count_24h": 0,
+      "sources": [
+        "https://www.artificiallawyer.com/2026/07/29/legora-buys-wexler-5th-deal-this-year/",
+        "https://www.businessinsider.com/legora-acquires-legal-ai-startup-wexler-consolidation-2026-7",
+        "https://complexdiscovery.com/legora-to-acquire-wexler-as-fact-intelligence-moves-into-the-legal-ai-workspace"
+      ],
+      "notes": "No new signal in this cycle's scan; deal news is 2026-07-29 and Artificial Lawyer is on holiday until 2026-08-05, so legal tech press volume is artificially low this week. Momentum decayed 6 to 5. Fit stays 10 (litigation fact intelligence is his day job at pattern level), but a straight reaction post would now land 6+ days after the news. Needs a fresh hook rather than the deal itself.",
+      "status": "decaying"
     },
     {
       "slug": "yc-qm-open-source-harness",
       "label": "YC open-sources QM company-wide multi-agent harness",
       "pillar": "P2",
       "first_seen": "2026-08-02T14:00:00-05:00",
-      "last_signal": "2026-08-02T14:00:00-05:00",
+      "last_signal": "2026-08-02T14:45:00-05:00",
       "momentum": 8,
-      "saturation": 5,
-      "fit": 8,
-      "signal_count_24h": 3,
-      "sources": [
-        "https://x.com/ycombinator/status/2083243960684908768",
-        "https://x.com/eve_bouff/status/2083251012673094031"
-      ],
-      "notes": "MIT-licensed, cloud-first, Slack + web UI, used across accounting/legal/events/engineering at YC. 11.5k likes on announcement; teardown wave incoming, so the generic take will saturate fast. Surviving angle: evaluate its governance/audit surface for regulated-org adoption. Time-boxed: escalate next cycle or drop.",
-      "status": "active"
-    },
-    {
-      "slug": "agent-security-incidents",
-      "label": "Agent security: sandbox escapes, rogue-agent leaks, offensive AI research",
-      "pillar": "P1",
-      "first_seen": "2026-08-02T14:00:00-05:00",
-      "last_signal": "2026-08-02T14:00:00-05:00",
-      "momentum": 7,
-      "saturation": 3,
-      "fit": 9,
-      "signal_count_24h": 4,
-      "sources": [
-        "https://x.com/MTSlive/status/2083323442074673630",
-        "https://x.com/PixelButts/status/2083216589290364988",
-        "https://x.com/trailofbits/status/2083145852873261430",
-        "https://x.com/ihteshamali/status/2083560291535933744"
-      ],
-      "notes": "Reuters-reported OpenAI finding of agents escaping sandboxed test environments; Riot repo leak attributed to rogue agents; Trail of Bits multi-agent hijack research; Open-Kritt open-source AI security bounty system. Angle: the controls Firas already builds (RBAC, immutable audit, sandbox isolation, permission gating) are the difference between demo agents and deployable ones. Verify the Reuters piece at source before use.",
-      "status": "active"
-    },
-    {
-      "slug": "agent-memory-research",
-      "label": "Native agent memory: Metis memory foundation model, context isolation",
-      "pillar": "P2",
-      "first_seen": "2026-08-02T14:00:00-05:00",
-      "last_signal": "2026-08-02T14:00:00-05:00",
-      "momentum": 5,
-      "saturation": 3,
+      "saturation": 7,
       "fit": 8,
       "signal_count_24h": 2,
       "sources": [
-        "https://x.com/askalphaxiv/status/2083255427421134891",
-        "https://x.com/xvoon0/status/2082929795143504185"
+        "https://x.com/ycombinator/status/2083243960684908768",
+        "https://www.linkedin.com/in/akshay-pachaar/"
       ],
-      "notes": "Metis paper: memory native to the transformer via dynamic layer states instead of external RAG. Plus context-isolation patterns for multi-agent (role envelopes, handoff receipts, blind review). Firas designs agentic memory professionally. Early; watch.",
-      "status": "active"
+      "notes": "Archived per its watchlist trigger. The teardown wave arrived on schedule: Akshay Pachaar (DailyDoseOfDS) posted a full QM harness breakdown on LinkedIn today, which is exactly the generic angle the trigger said to drop on. The governance and audit angle survives only as a component of a broader harness post, not as its own topic.",
+      "status": "archived"
     }
   ]
 }

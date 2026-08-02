@@ -1,26 +1,33 @@
 {
-  "updated": "2026-08-02T14:30:00-05:00",
+  "updated": "2026-08-02T15:40:00-05:00",
   "items": [
     {
+      "slug": "openai-astra-multi-agent",
+      "trigger": "next cycle if still qualifying: escalate only with the primary OpenAI report in hand and an angle beyond the announcement itself (verification of long-horizon agent claims, or what Lean-style certificates imply for production eval harnesses)",
+      "added": "2026-08-02T15:40:00-05:00",
+      "expires": "2026-08-09T15:40:00-05:00",
+      "notes": "runner-up this cycle, lost on fit 8 vs 10; saturation already 7, so it may simply expire"
+    },
+    {
       "slug": "agent-memory-research",
-      "trigger": "escalate if the Metis paper gets a major-lab follow-up, a vendor ships native memory, or 3+ tracked creators post on agent memory",
+      "trigger": "escalate if a vendor ships native memory in a shipping product, a major lab follows up on Metis, or 3+ tracked creators post on agent memory with the same framing",
       "added": "2026-08-02T14:30:00-05:00",
       "expires": "2026-08-09T14:30:00-05:00",
-      "notes": "P2, fit 8, early"
+      "notes": "momentum 5 to 7 this cycle (Metis, PRO-LONG, Experience Distillation); LinkedIn side still shallow, so the angle stays open"
     },
     {
-      "slug": "openai-astra-multi-agent",
-      "trigger": "escalate immediately on official OpenAI announcement or the math-results report publishing; leak-stage coverage is P3-risky",
-      "added": "2026-08-02T14:30:00-05:00",
-      "expires": "2026-08-16T14:30:00-05:00",
-      "notes": "verify before drafting"
+      "slug": "agent-liability-insurance",
+      "trigger": "escalate if a second firm or an insurer publishes underwriting criteria for autonomous agents, or Crosby publishes any detail on what its agents must log and prove",
+      "added": "2026-08-02T15:40:00-05:00",
+      "expires": "2026-08-16T15:40:00-05:00",
+      "notes": "P1 with high standing but low momentum; keep strictly to architecture, never liability opinion"
     },
     {
-      "slug": "yc-qm-open-source-harness",
-      "trigger": "next cycle only: escalate if the governance/audit teardown angle is still unclaimed among tracked creators, else drop",
-      "added": "2026-08-02T14:30:00-05:00",
-      "expires": "2026-08-04T14:30:00-05:00",
-      "notes": "saturating fast"
+      "slug": "legora-wexler-litigation-ai",
+      "trigger": "escalate only on a fresh hook: Legora or Wexler publishing integration or engineering detail, a competing fact-intelligence launch, or a 6th acquisition. The deal alone is now stale",
+      "added": "2026-08-02T15:40:00-05:00",
+      "expires": "2026-08-12T15:40:00-05:00",
+      "notes": "fit 10, momentum decaying; legal tech press thin until Artificial Lawyer returns 2026-08-05"
     }
   ]
 }
