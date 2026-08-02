@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02T15:40:00-05:00",
+  "updated": "2026-08-02T17:25:00-05:00",
   "items": [
     {
       "slug": "openai-astra-multi-agent",
@@ -28,6 +28,20 @@
       "added": "2026-08-02T15:40:00-05:00",
       "expires": "2026-08-12T15:40:00-05:00",
       "notes": "fit 10, momentum decaying; legal tech press thin until Artificial Lawyer returns 2026-08-05"
+    },
+    {
+      "slug": "eval-independence-agent-persistence",
+      "trigger": "escalate if OpenAI publishes what the notes were and where they lived, or METR/Redwood publish their review, or any eval vendor ships run-isolation guarantees against cross-run state",
+      "added": "2026-08-02T17:25:00-05:00",
+      "expires": "2026-08-09T17:25:00-05:00",
+      "notes": "strong fit and open field, but the load-bearing fact is single-sourced reporting OpenAI disputes; do not build a post on it yet"
+    },
+    {
+      "slug": "personal-injury-ai-intake",
+      "trigger": "escalate only on a public engineering artifact: a vendor publishing how intake extraction or qualification thresholds work, a benchmark, or a court/regulator record on automated intake. Never any employer or matter detail",
+      "added": "2026-08-02T17:25:00-05:00",
+      "expires": "2026-08-12T17:25:00-05:00",
+      "notes": "P1 adjacency to his day job means the conflict check runs before the editorial one"
     }
   ]
 }

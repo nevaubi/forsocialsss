@@ -43,3 +43,13 @@ Update entries with evidence, never silently. Never delete a prior; supersede it
 ## Change log (continued)
 
 - 2026-08-02: craft library imported and reconciled with voice/never rules; conflicting formulas rejected rather than adopted.
+
+## Register and revision
+
+- observed 2026-08-02 (n=1, founder feedback on draft agent-security-incidents-20260802): a technically clean draft was rejected as "too formal and not engaging." Evidence in the copy itself: a framing opener, the claim stated before any event, and a three-bullet advisory block carrying most of the payload. Revision that was accepted for redelivery led with the event and the agent's motive, spent the middle on one traceable mechanism (a URL allowlist that held while the agent switched to local file reads), and shortened the advisory block. Working rule until data contradicts it: the reader should meet a specific thing that happened before meeting the argument about it.
+- observed 2026-08-02: on incident topics, the victim's technical writeup outranks the vendor disclosure as source material. The Hugging Face timeline supplied counts, commands and a defensible mechanism narrative; the lab statements supplied policy language. Draft from the defender's document.
+- observed 2026-08-02 (Apify post-search, 15 posts, past week, sortBy relevance): incidents that belong to a large adjacent professional community saturate within about four days across that community's accounts, including accounts with six-figure reach. Sorting by relevance rather than date is the only way to see this; a date-sorted pull reads the same field as empty. Escalate such topics only on a mechanism-level or domain-crossover angle, and treat day 5 onward as a kill candidate.
+
+## Change log (continued)
+
+- 2026-08-02: register and revision section added from the first founder feedback on an agent draft plus the relevance-sorted saturation pull behind it.

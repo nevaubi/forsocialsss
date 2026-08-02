@@ -14,7 +14,7 @@ Access path: direct HTTPS to api.apify.com with an Authorization: Bearer APIFY_A
 
 Unit prices are observed bronze-tier per-event rates; re-check quarterly.
 
-1. harvestapi/linkedin-post-search ($0.002 per post): the trend corpus. Per cycle: at most 2 searchQueries, maxPosts 15 each, postedLimit past-24h, sortBy date. Choose queries from active topic keywords first, then rotate the seed pool below. Tuning note, observed 2026-08-02 (postedLimit week, sortBy date, 2 queries, 30 posts): every returned post was under two hours old, so sortBy date makes postedLimit almost irrelevant and gives a "what is being posted right now" sample. That is the right instrument for live saturation and the wrong one for finding the week's best posts on a topic; use sortBy relevance when the question is who owns an angle already.
+1. harvestapi/linkedin-post-search ($0.002 per post): the trend corpus. Per cycle: at most 2 searchQueries, maxPosts 15 each, postedLimit 24h, sortBy date. Input note, observed 2026-08-02: postedLimit only accepts any, 1h, 24h, week, month, 3months, 6months, year; "past-week" style values fail with invalid-input and burn a call. Choose queries from active topic keywords first, then rotate the seed pool below. Tuning note, observed 2026-08-02 (postedLimit week, sortBy date, 2 queries, 30 posts): every returned post was under two hours old, so sortBy date makes postedLimit almost irrelevant and gives a "what is being posted right now" sample. That is the right instrument for live saturation and the wrong one for finding the week's best posts on a topic; use sortBy relevance when the question is who owns an angle already.
 2. harvestapi/linkedin-profile-posts ($0.002 per post): tracked-creator sweep. Per cycle: at most 10 creators, round-robin through sources/creators.json using rotation_cursor, maxPosts 3 each, postedLimit past-week, includeReposts false.
 3. harvestapi/linkedin-post-comments ($0.002 per comment): deep-dive only. At most 2 posts, maxItems 20 each.
 4. harvestapi/linkedin-profile-search: creator URL resolution during bootstrap only. maxItems 3, at most 5 resolutions per cycle.
@@ -44,7 +44,7 @@ POST https://api.tavily.com/search with the TAVILY_API_KEY environment variable 
 ## Non-LinkedIn free sources, every cycle
 
 - Hacker News (Algolia API): https://hn.algolia.com/api/v1/search_by_date?tags=story&query=QUERY&numericFilters=points%3E20 plus front page via https://hn.algolia.com/api/v1/search?tags=front_page
-- arXiv API: http://export.arxiv.org/api/query?search_query=cat:cs.AI+OR+cat:cs.CL&sortBy=submittedDate&sortOrder=descending&max_results=15 (titles and abstracts only)
+- arXiv API: https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=15 (titles and abstracts only). Observed 2026-08-02: the http scheme returns an empty body in the sandbox and the OR-joined category query returns nothing; use https and a single category, then a second call for cs.CL if needed.
 - Vendor primary sources by fetch when a claim references them: anthropic.com/news, openai.com/news, blog.google/technology/ai
 - Legal tech press by fetch, headline scan: lawsitesblog.com, artificiallawyer.com, law.com/legaltechnews, complexdiscovery.com
 
