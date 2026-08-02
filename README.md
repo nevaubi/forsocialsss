@@ -53,6 +53,15 @@ Alternative runtime: the same repo runs as a Claude Code routine (subscription-b
 
 A second agent runs alongside the heartbeat: Kimi K3 on the Fireworks serverless endpoint, polling the same Slack DM every 5 minutes (assistant/assistant.py, Assistant Chat workflow). It answers questions about system state with full read access to the repo, run log, and live deployment status, and it is structurally read-only: its workflow token cannot push. The one write path is explicit: a DM starting with "apply: <change>" dispatches the Assistant Apply workflow, which has Kimi produce complete replacement files and open a pull request for review. Merging the PR is the approval; the heartbeat pulls main every cycle so merged changes take effect on the next fire. Messages the assistant has answered get a robot_face reaction; heartbeat keywords (approve, edit:, kill:, hold, status, posted, retro now) are left for the heartbeat.
 
+## Instant replies (Cloudflare Worker)
+
+The cron poller answers within about 5 minutes. For replies in a few seconds, deploy assistant/worker.js as a Cloudflare Worker; Slack then pushes each DM to it the moment it is sent. The poller stays on as the fallback and as the apply: handler, and the robot_face reaction keeps the two from double-answering. Setup, about ten minutes:
+
+1. dash.cloudflare.com, free account, Workers and Pages, Create Worker, any name, then paste the contents of assistant/worker.js over the starter code and deploy. Copy the worker URL.
+2. In the worker's Settings, Variables and Secrets, add type-Secret entries: SLACK_BOT_TOKEN (the xoxb token), SLACK_SIGNING_SECRET (Slack app, Basic Information, Signing Secret), FIREWORKS_API_KEY. Optional: ANTHROPIC_API_KEY (adds live deployment status to answers) and GH_DISPATCH_TOKEN (a GitHub token with actions write; makes apply: dispatch the PR workflow instantly instead of waiting for the cron).
+3. In the Slack app, Event Subscriptions, toggle Enable, set Request URL to the worker URL (Slack verifies it immediately; the worker answers the challenge), then under Subscribe to bot events add message.im and save. Reinstall if Slack prompts.
+4. DM the bot. The reply should land in a few seconds, threaded, with a robot_face reaction on your message.
+
 ## Costs
 
 - Apify: capped at $0.30 per cycle, typical $0.10-0.15; roughly $15-30/month at 8-10 cycles/day.
