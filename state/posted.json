@@ -1,0 +1,18 @@
+{
+  "updated": "2026-08-02",
+  "posts": [
+    {
+      "id": "loop-engineering-guide",
+      "url": "https://www.linkedin.com/posts/firas-shaher_guide-to-loop-engineering-claude-code-activity-7489467712855810049-zuLj",
+      "posted_at": "2026-08-01",
+      "pillar": "P2",
+      "format": "document",
+      "title": "Guide to Loop Engineering - Claude Code",
+      "doc_pages": 30,
+      "summary": "Multi-agent loop engineering: separation of concerns, context engineering, verification and stop conditions, tooling and harnesses. 30-page PDF attached, produced with the process it describes.",
+      "predicted": null,
+      "engagement": {"checked_at": "2026-08-02", "likes": 1, "comments": 0, "shares": 0},
+      "notes": "Pre-agent baseline. Strong document-format instinct and solid body list. Hook workable but could be sharper. Posted Friday ~23:50 UTC (off-peak). 42-follower cold start; treat numbers as floor, not format signal."
+    }
+  ]
+}
