@@ -1,103 +1,103 @@
 {
- "updated": "2026-08-03T15:45:00-05:00",
- "items": [
-  {
-   "slug": "openai-astra-multi-agent",
-   "trigger": "first half now satisfied, the primary OpenAI post exists (announced inside the ten-advances math post, confirmed 08-02). Escalate only on the second half: an angle beyond the announcement, specifically how long-horizon multi-agent claims get verified, or what proof-style certificates imply for production eval harnesses. At saturation 8 the default is to let it expire",
-   "added": "2026-08-02T15:40:00-05:00",
-   "expires": "2026-08-09T15:40:00-05:00",
-   "notes": "runner-up this cycle, lost on fit 8 vs 10; saturation already 7, so it may simply expire"
-  },
-  {
-   "slug": "agent-memory-research",
-   "trigger": "escalate only on a primary artifact for memory as a write target: a documented memory-poisoning incident with the mechanism published, a vendor shipping memory provenance or audit controls, or a lab follow-up on Metis. The generic 'agents need memory' framing is a kill, and as of 08-03 the 'memory is a trust boundary' framing is also partly claimed, so restate the differentiator before drafting",
-   "added": "2026-08-02T14:30:00-05:00",
-   "expires": "2026-08-09T14:30:00-05:00",
-   "notes": "saturation 5 to 6 on a 15-post relevance pull 08-03. Near-neighbour angles now published (Askia 07-29 on what the agent does in memory after the escape, Agarwal 07-08 on agentic trust boundaries). Ruflo CVE-2026-59726 at CVSS 10.0 exposed persistent agent memory via an unauthenticated MCP bridge, which is trigger-adjacent but was not fired: no primary poisoning mechanism published, and a 10.0 in a named small project risks reading as a dunk"
-  },
-  {
-   "slug": "agent-liability-insurance",
-   "trigger": "escalate when the criteria appear in public: Crosby, one of its auditors, an insurer, a bar association or a state regulator publishing what an agent must log, prove or pass to be underwritten or approved for autonomous work",
-   "added": "2026-08-02T15:40:00-05:00",
-   "expires": "2026-08-16T15:40:00-05:00",
-   "notes": "primary source found 08-02: Crosby's co-founder says auditors are defining evals now and is asking for partners; high-fit comment opportunity for the retro digest, architecture-side only | 2026-08-03: Tromans covered the Crosby move on 07-28 with no underwriting criteria, so the trigger stays unfired. The topic record will archive on the 7-day rule around 08-04; this watchlist item survives that, because the trigger is a future publication and does not need a live topic. | 2026-08-03 15:35: Bloomberg Law covered the Crosby insurance move today, so the topic record is active again and the archive is cancelled. Still no underwriting criteria published, so the trigger holds unfired. Coverage volume in the legal press is now the risk to this angle, not the absence of it."
-  },
-  {
-   "slug": "legora-wexler-litigation-ai",
-   "trigger": "escalate only on a fresh hook: Legora or Wexler publishing integration or engineering detail, a competing fact-intelligence launch, or a 6th acquisition. The deal alone is now stale",
-   "added": "2026-08-02T15:40:00-05:00",
-   "expires": "2026-08-12T15:40:00-05:00",
-   "notes": "fit 10, momentum decaying; legal tech press thin until Artificial Lawyer returns 2026-08-05"
-  },
-  {
-   "slug": "eval-independence-agent-persistence",
-   "trigger": "escalate on an artifact, not commentary: the Anthropic lightly redacted transcript promised within a week of 07-30, the METR/Redwood published review, or OpenAI's own technical report saying what the cross-run notes were and where they lived",
-   "added": "2026-08-02T17:25:00-05:00",
-   "expires": "2026-08-09T17:25:00-05:00",
-   "notes": "trigger checked and did not fire 2026-08-02 21:10 CT; none of the three artifacts published yet. Anthropic's own one-week commitment dates from 07-30, so re-check around 08-06 rather than every cycle"
-  },
-  {
-   "slug": "personal-injury-ai-intake",
-   "trigger": "escalate only on a public engineering artifact: a vendor publishing how intake extraction or qualification thresholds work, a benchmark, or a court/regulator record on automated intake. Never any employer or matter detail",
-   "added": "2026-08-02T17:25:00-05:00",
-   "expires": "2026-08-12T17:25:00-05:00",
-   "notes": "P1 adjacency to his day job means the conflict check runs before the editorial one"
-  },
-  {
-   "slug": "eval-design-grader-gaming",
-   "trigger": "escalate as the cycle's one delivery once the agent-security draft resolves, and only on the measured-design angle: METR's 43x gap between RE-Bench and HCAST reward hacking with the scoring function visible, the prompt table where telling the model to solve it as intended raised cheating to 95%, and the 44-incident finding that no agent effectively erased its logs. Kill it if any of three things happen: the post needs the Hugging Face incident to carry it, a large account publishes the METR numbers first, or the honest version reduces to 'graders are gameable', which six small accounts already posted between 07-07 and 08-01",
-   "added": "2026-08-02T19:40:00-05:00",
-   "expires": "2026-08-09T19:40:00-05:00",
-   "notes": "held for a second consecutive cycle 2026-08-03: saturation still 6 and still failing the gate, and slop-cve-verification measured 3 on the same instrument and took the delivery slot. Stored METR evidence remains valid so the draft still costs no new research spend. Firas was told in this cycle's brief that this one stays parked | Held a third cycle 2026-08-03 09:40: the queue already holds two delivered drafts, which fails the gate on queue depth before scores even matter. Saturation stays 6. New boundary from the creator sweep: Harrison Chase published the benchmark-saturation conversation on 07-30, so the draft must lead with graders as an attack surface and the METR measurements, never with benchmark saturation."
-  },
-  {
-   "slug": "slop-cve-verification",
-   "trigger": "this cycle's delivered draft. If Firas kills it, escalate again only on a stronger artifact: a maintainer or registry publishing a reproduction requirement, NVD or GHSA withdrawing the fabricated batch, or a documented case of an automated triage agent acting on a fabricated advisory. Kill the lane if a large security account publishes the same record-level read first, since the whole angle is that nobody had looked at the record fields",
-   "added": "2026-08-03T07:30:00-05:00",
-   "expires": "2026-08-10T07:30:00-05:00",
-   "notes": "delivered 08-03 07:30 CT at m7 s3 f9. Watch for the advisory being withdrawn, which would date the post's central present-tense claim | 2026-08-03 09:40: record re-verified unchanged at GHSA (Critical 9.8, Unreviewed, versions unknown, EPSS 0.529 percent, last updated Jul 28), so the draft's present-tense claim holds for a Tuesday window. HN climbed 86 to 340 points with no competing record-level read, so the kill criterion has not fired. | 2026-08-03 13:45: draft killed by the queue-clearing directive rather than on the merits, so treat the trigger's kill branch as unfired. HN at 644 points and still no competing record-level read. The record-level argument has now been published inside the sanctions report as its non-legal section, which lowers the value of a standalone repeat."
-  },
-  {
-   "slug": "qwen38-max-open-weights",
-   "trigger": "escalate only when the Max-class weights actually ship (Alibaba says next week) and only on a production question a builder can answer: what serving a 2.4T open-weight model actually demands, or the mixed benchmark card read as a routing decision rather than a ranking. Kill it if the honest version reduces to a benchmark recap, and kill it if the draft needs any number that is not in the primary Qwen table",
-   "added": "2026-08-03T09:40:00-05:00",
-   "expires": "2026-08-10T09:40:00-05:00",
-   "notes": "measured saturation 7 within hours of release: 15 of 15 posts in a date-sorted pull restated the announcement. The announcement lane is unwinnable, the weights-shipping date is a second and better window, and the routing angle belongs to model-routing-over-best-model rather than here"
-  },
-  {
-   "slug": "model-routing-over-best-model",
-   "trigger": "escalate only when a relevance pull in this lane's own vocabulary (model routing, model router, cascade, per-task model selection, past month, 15 posts) measures saturation at 5 or lower AND the angle is a decision rule Firas can defend from documented work with its failure mode named. The 'which model is best is the wrong question' framing is now off limits as an opening: Harrison Chase published it on 07-30 to a much larger audience",
-   "added": "2026-08-03T09:40:00-05:00",
-   "expires": "2026-08-10T09:40:00-05:00",
-   "notes": "saturation 5 in topics.json is a provisional prior, never measured. The 08-02 eval-design correction went 3 to 6 the moment the lane was measured in its own words, so this trigger requires the measurement before the draft, not after | 2026-08-03 15:35: the queue-depth half of this trigger came true this cycle and the topic still did not qualify. Evidence moved saturation 5 to 6 before any measurement: Chase owns the framing as of 07-30 and HN shows a crowded router-product lane. The measurement is still owed, and it now has to clear a higher bar than it was written against. | 2026-08-03 15:45: saturation 7 after the corrected sweep. Liu shipped per-page parser routing on 07-30 with the same opening framing. Escalate only on the failure-mode angle, what breaks when the router picks wrong and how you detect it, with a measurement Firas can defend. Anything else in this lane is now a kill."
-  },
-  {
-   "slug": "legal-ai-hallucination-sanctions",
-   "trigger": "this cycle's delivered draft, founder-directed. The follow-up post is already identified and needs no new research: the pro se inversion (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) and what it does to verification load, since it moves the burden from checking your own citations to checking inbound documents from parties with no verification process at all. Escalate that only after this draft resolves, and re-measure saturation in that sub-lane's own vocabulary first, because Law.com covered the pro se surge on 07-14. Kill the lane if a large account publishes the attribution or tool-provenance read before Firas posts",
-   "added": "2026-08-03T11:18:00-05:00",
-   "expires": "2026-08-10T11:18:00-05:00",
-   "notes": "saturation measured 7 on a 15-post relevance pull, correcting the assistant's unmeasured 4. Two of my three candidate angles were already published (Brinsa 07-21 organizational negligence, Boyer 08-03 00:31 failure taxonomy), which is why the delivered draft leads on attribution instead. The database is updated daily, so the 1,822 figure ages: re-read the primary page before any redelivery and expect the number to have moved | 2026-08-03 13:45: the founder-directed 5-page PDF report shipped as a document post on this topic, so the text draft delivered at 11:18 is killed and superseded. The full CSV is now parsed and its aggregates are banked in topics.json, so the pro se follow-up post needs no new data pull, only a saturation measurement in its own vocabulary. Re-read the database before any redelivery: the total moves daily and the report states 1,822 as of the 1 August update."
-  },
-  {
-   "slug": "legal-ai-sanctions-report-followup",
-   "trigger": "escalate the pro se inversion post (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) only after the report resolves, and only after measuring saturation in that sub-lane's own vocabulary. Kill it if the report itself already carried the point in Firas's comments, or if a large account publishes the inbound-verification read first",
-   "added": "2026-08-03T13:45:00-05:00",
-   "expires": "2026-08-10T13:45:00-05:00",
-   "notes": "research is done and banked in topics.json; the angle is that verification load moves from checking your own citations to checking inbound documents from parties with no verification process | 2026-08-03 15:35: three same-day signals in the pro se sub-lane (DWT on AI-generated claims from self-represented parties, a Lex Machina report on pro se employment filings, a UK post on litigants in person). Corroboration for the angle and a warning on saturation, which is rising while the post waits. Measure in the sub-lane's vocabulary before drafting."
-  },
-  {
-   "slug": "retrieval-only-legal-research",
-   "trigger": "this cycle's delivered draft. If Firas kills it, escalate again only on a stronger artifact: published recall numbers for a retrieval-only legal tool, a firm or court requiring a measured recall floor, or a second serious vendor dropping the synthesised answer. Kill the lane if a large account publishes the error-mode substitution read first, since the whole angle is that nobody had moved past the announcement",
-   "added": "2026-08-03T15:35:00-05:00",
-   "expires": "2026-08-10T15:35:00-05:00",
-   "notes": "delivered 08-03 15:29 CT at m7 s4 f10. Saturation was measured 4 hours after launch, so re-measure before any redelivery: announcement lanes saturated to 7 within hours on qwen38-max. The Stanford RegLab figures are 2024 measurements and the draft says so; if either vendor publishes a newer independent evaluation, the framing needs updating rather than repeating."
-  },
-  {
-   "slug": "agent-trace-disclosure",
-   "trigger": "escalate only on an artifact that defines the unit: a published trace schema or format, a vendor shipping exportable agent traces, or an incident report that includes the actual trace. A saturation measurement in this sub-lane's own vocabulary is mandatory first, because the 7 it carries is inherited from the agent-security lane and never measured here. The mandate-and-policy framing is not the post",
-   "added": "2026-08-03T15:35:00-05:00",
-   "expires": "2026-08-10T15:35:00-05:00",
-   "notes": "Hugging Face's CEO asked for mandatory disclosure of AI cyberattacks including agent traces, and OpenAI now suspects further escapes found in log analysis after the Hugging Face breach. Firas's standing here is the schema question: retention, redaction, tool-call arguments, and what makes a trace legible to an outside reader. The parent lane is saturated and its remaining volume is opinion, so this only escalates on an artifact."
-  }
- ]
+  "updated": "2026-08-03T17:50:00-05:00",
+  "items": [
+    {
+      "slug": "openai-astra-multi-agent",
+      "trigger": "first half now satisfied, the primary OpenAI post exists (announced inside the ten-advances math post, confirmed 08-02). Escalate only on the second half: an angle beyond the announcement, specifically how long-horizon multi-agent claims get verified, or what proof-style certificates imply for production eval harnesses. At saturation 8 the default is to let it expire",
+      "added": "2026-08-02T15:40:00-05:00",
+      "expires": "2026-08-09T15:40:00-05:00",
+      "notes": "runner-up this cycle, lost on fit 8 vs 10; saturation already 7, so it may simply expire"
+    },
+    {
+      "slug": "agent-memory-research",
+      "trigger": "escalate only on a primary artifact for memory as a write target: a documented memory-poisoning incident with the mechanism published, a vendor shipping memory provenance or audit controls, or a lab follow-up on Metis. The generic 'agents need memory' framing is a kill, and as of 08-03 the 'memory is a trust boundary' framing is also partly claimed, so restate the differentiator before drafting",
+      "added": "2026-08-02T14:30:00-05:00",
+      "expires": "2026-08-09T14:30:00-05:00",
+      "notes": "saturation 5 to 6 on a 15-post relevance pull 08-03. Near-neighbour angles now published (Askia 07-29 on what the agent does in memory after the escape, Agarwal 07-08 on agentic trust boundaries). Ruflo CVE-2026-59726 at CVSS 10.0 exposed persistent agent memory via an unauthenticated MCP bridge, which is trigger-adjacent but was not fired: no primary poisoning mechanism published, and a 10.0 in a named small project risks reading as a dunk"
+    },
+    {
+      "slug": "agent-liability-insurance",
+      "trigger": "escalate when the criteria appear in public: Crosby, one of its auditors, an insurer, a bar association or a state regulator publishing what an agent must log, prove or pass to be underwritten or approved for autonomous work",
+      "added": "2026-08-02T15:40:00-05:00",
+      "expires": "2026-08-16T15:40:00-05:00",
+      "notes": "primary source found 08-02: Crosby's co-founder says auditors are defining evals now and is asking for partners; high-fit comment opportunity for the retro digest, architecture-side only | 2026-08-03: Tromans covered the Crosby move on 07-28 with no underwriting criteria, so the trigger stays unfired. The topic record will archive on the 7-day rule around 08-04; this watchlist item survives that, because the trigger is a future publication and does not need a live topic. | 2026-08-03 15:35: Bloomberg Law covered the Crosby insurance move today, so the topic record is active again and the archive is cancelled. Still no underwriting criteria published, so the trigger holds unfired. Coverage volume in the legal press is now the risk to this angle, not the absence of it."
+    },
+    {
+      "slug": "legora-wexler-litigation-ai",
+      "trigger": "escalate only on a fresh hook: Legora or Wexler publishing integration or engineering detail, a competing fact-intelligence launch, or a 6th acquisition. The deal alone is now stale",
+      "added": "2026-08-02T15:40:00-05:00",
+      "expires": "2026-08-12T15:40:00-05:00",
+      "notes": "fit 10, momentum decaying; legal tech press thin until Artificial Lawyer returns 2026-08-05"
+    },
+    {
+      "slug": "eval-independence-agent-persistence",
+      "trigger": "escalate on an artifact, not commentary: the Anthropic lightly redacted transcript promised within a week of 07-30, the METR/Redwood published review, or OpenAI's own technical report saying what the cross-run notes were and where they lived",
+      "added": "2026-08-02T17:25:00-05:00",
+      "expires": "2026-08-09T17:25:00-05:00",
+      "notes": "trigger checked and did not fire 2026-08-02 21:10 CT; none of the three artifacts published yet. Anthropic's own one-week commitment dates from 07-30, so re-check around 08-06 rather than every cycle"
+    },
+    {
+      "slug": "personal-injury-ai-intake",
+      "trigger": "escalate only on a public engineering artifact: a vendor publishing how intake extraction or qualification thresholds work, a benchmark, or a court/regulator record on automated intake. Never any employer or matter detail",
+      "added": "2026-08-02T17:25:00-05:00",
+      "expires": "2026-08-12T17:25:00-05:00",
+      "notes": "P1 adjacency to his day job means the conflict check runs before the editorial one"
+    },
+    {
+      "slug": "eval-design-grader-gaming",
+      "trigger": "escalate as the cycle's one delivery once the agent-security draft resolves, and only on the measured-design angle: METR's 43x gap between RE-Bench and HCAST reward hacking with the scoring function visible, the prompt table where telling the model to solve it as intended raised cheating to 95%, and the 44-incident finding that no agent effectively erased its logs. Kill it if any of three things happen: the post needs the Hugging Face incident to carry it, a large account publishes the METR numbers first, or the honest version reduces to 'graders are gameable', which six small accounts already posted between 07-07 and 08-01",
+      "added": "2026-08-02T19:40:00-05:00",
+      "expires": "2026-08-09T19:40:00-05:00",
+      "notes": "held for a second consecutive cycle 2026-08-03: saturation still 6 and still failing the gate, and slop-cve-verification measured 3 on the same instrument and took the delivery slot. Stored METR evidence remains valid so the draft still costs no new research spend. Firas was told in this cycle's brief that this one stays parked | Held a third cycle 2026-08-03 09:40: the queue already holds two delivered drafts, which fails the gate on queue depth before scores even matter. Saturation stays 6. New boundary from the creator sweep: Harrison Chase published the benchmark-saturation conversation on 07-30, so the draft must lead with graders as an attack surface and the METR measurements, never with benchmark saturation."
+    },
+    {
+      "slug": "slop-cve-verification",
+      "trigger": "this cycle's delivered draft. If Firas kills it, escalate again only on a stronger artifact: a maintainer or registry publishing a reproduction requirement, NVD or GHSA withdrawing the fabricated batch, or a documented case of an automated triage agent acting on a fabricated advisory. Kill the lane if a large security account publishes the same record-level read first, since the whole angle is that nobody had looked at the record fields",
+      "added": "2026-08-03T07:30:00-05:00",
+      "expires": "2026-08-10T07:30:00-05:00",
+      "notes": "delivered 08-03 07:30 CT at m7 s3 f9. Watch for the advisory being withdrawn, which would date the post's central present-tense claim | 2026-08-03 09:40: record re-verified unchanged at GHSA (Critical 9.8, Unreviewed, versions unknown, EPSS 0.529 percent, last updated Jul 28), so the draft's present-tense claim holds for a Tuesday window. HN climbed 86 to 340 points with no competing record-level read, so the kill criterion has not fired. | 2026-08-03 13:45: draft killed by the queue-clearing directive rather than on the merits, so treat the trigger's kill branch as unfired. HN at 644 points and still no competing record-level read. The record-level argument has now been published inside the sanctions report as its non-legal section, which lowers the value of a standalone repeat."
+    },
+    {
+      "slug": "qwen38-max-open-weights",
+      "trigger": "escalate only when the Max-class weights actually ship (Alibaba says next week) and only on a production question a builder can answer: what serving a 2.4T open-weight model actually demands, or the mixed benchmark card read as a routing decision rather than a ranking. Kill it if the honest version reduces to a benchmark recap, and kill it if the draft needs any number that is not in the primary Qwen table",
+      "added": "2026-08-03T09:40:00-05:00",
+      "expires": "2026-08-10T09:40:00-05:00",
+      "notes": "measured saturation 7 within hours of release: 15 of 15 posts in a date-sorted pull restated the announcement. The announcement lane is unwinnable, the weights-shipping date is a second and better window, and the routing angle belongs to model-routing-over-best-model rather than here Window sharpened 2026-08-03 17:25 CT from same-day coverage: weights expected the week of 10 August via Model Studio, Hugging Face and ModelScope, Max plus a 27B. Re-check 08-10, do not spend before then."
+    },
+    {
+      "slug": "model-routing-over-best-model",
+      "trigger": "escalate only when a relevance pull in this lane's own vocabulary (model routing, model router, cascade, per-task model selection, past month, 15 posts) measures saturation at 5 or lower AND the angle is a decision rule Firas can defend from documented work with its failure mode named. The 'which model is best is the wrong question' framing is now off limits as an opening: Harrison Chase published it on 07-30 to a much larger audience",
+      "added": "2026-08-03T09:40:00-05:00",
+      "expires": "2026-08-10T09:40:00-05:00",
+      "notes": "saturation 5 in topics.json is a provisional prior, never measured. The 08-02 eval-design correction went 3 to 6 the moment the lane was measured in its own words, so this trigger requires the measurement before the draft, not after | 2026-08-03 15:35: the queue-depth half of this trigger came true this cycle and the topic still did not qualify. Evidence moved saturation 5 to 6 before any measurement: Chase owns the framing as of 07-30 and HN shows a crowded router-product lane. The measurement is still owed, and it now has to clear a higher bar than it was written against. | 2026-08-03 15:45: saturation 7 after the corrected sweep. Liu shipped per-page parser routing on 07-30 with the same opening framing. Escalate only on the failure-mode angle, what breaks when the router picks wrong and how you detect it, with a measurement Firas can defend. Anything else in this lane is now a kill."
+    },
+    {
+      "slug": "legal-ai-hallucination-sanctions",
+      "trigger": "this cycle's delivered draft, founder-directed. The follow-up post is already identified and needs no new research: the pro se inversion (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) and what it does to verification load, since it moves the burden from checking your own citations to checking inbound documents from parties with no verification process at all. Escalate that only after this draft resolves, and re-measure saturation in that sub-lane's own vocabulary first, because Law.com covered the pro se surge on 07-14. Kill the lane if a large account publishes the attribution or tool-provenance read before Firas posts",
+      "added": "2026-08-03T11:18:00-05:00",
+      "expires": "2026-08-10T11:18:00-05:00",
+      "notes": "saturation measured 7 on a 15-post relevance pull, correcting the assistant's unmeasured 4. Two of my three candidate angles were already published (Brinsa 07-21 organizational negligence, Boyer 08-03 00:31 failure taxonomy), which is why the delivered draft leads on attribution instead. The database is updated daily, so the 1,822 figure ages: re-read the primary page before any redelivery and expect the number to have moved | 2026-08-03 13:45: the founder-directed 5-page PDF report shipped as a document post on this topic, so the text draft delivered at 11:18 is killed and superseded. The full CSV is now parsed and its aggregates are banked in topics.json, so the pro se follow-up post needs no new data pull, only a saturation measurement in its own vocabulary. Re-read the database before any redelivery: the total moves daily and the report states 1,822 as of the 1 August update."
+    },
+    {
+      "slug": "legal-ai-sanctions-report-followup",
+      "trigger": "escalate the pro se inversion post (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) only after the report resolves, and only after measuring saturation in that sub-lane's own vocabulary. Kill it if the report itself already carried the point in Firas's comments, or if a large account publishes the inbound-verification read first",
+      "added": "2026-08-03T13:45:00-05:00",
+      "expires": "2026-08-10T13:45:00-05:00",
+      "notes": "research is done and banked in topics.json; the angle is that verification load moves from checking your own citations to checking inbound documents from parties with no verification process | 2026-08-03 15:35: three same-day signals in the pro se sub-lane (DWT on AI-generated claims from self-represented parties, a Lex Machina report on pro se employment filings, a UK post on litigants in person). Corroboration for the angle and a warning on saturation, which is rising while the post waits. Measure in the sub-lane's vocabulary before drafting."
+    },
+    {
+      "slug": "retrieval-only-legal-research",
+      "trigger": "this cycle's delivered draft. If Firas kills it, escalate again only on a stronger artifact: published recall numbers for a retrieval-only legal tool, a firm or court requiring a measured recall floor, or a second serious vendor dropping the synthesised answer. Kill the lane if a large account publishes the error-mode substitution read first, since the whole angle is that nobody had moved past the announcement",
+      "added": "2026-08-03T15:35:00-05:00",
+      "expires": "2026-08-10T15:35:00-05:00",
+      "notes": "delivered 08-03 15:29 CT at m7 s4 f10. Saturation was measured 4 hours after launch, so re-measure before any redelivery: announcement lanes saturated to 7 within hours on qwen38-max. The Stanford RegLab figures are 2024 measurements and the draft says so; if either vendor publishes a newer independent evaluation, the framing needs updating rather than repeating."
+    },
+    {
+      "slug": "agent-trace-disclosure",
+      "trigger": "escalate only on an artifact that defines the unit: a published trace schema or format, a vendor shipping exportable agent traces, or an incident report that includes the actual trace. A saturation measurement in this sub-lane's own vocabulary is mandatory first, because the 7 it carries is inherited from the agent-security lane and never measured here. The mandate-and-policy framing is not the post",
+      "added": "2026-08-03T15:35:00-05:00",
+      "expires": "2026-08-10T15:35:00-05:00",
+      "notes": "Hugging Face's CEO asked for mandatory disclosure of AI cyberattacks including agent traces, and OpenAI now suspects further escapes found in log analysis after the Hugging Face breach. Firas's standing here is the schema question: retention, redaction, tool-call arguments, and what makes a trace legible to an outside reader. The parent lane is saturated and its remaining volume is opinion, so this only escalates on an artifact. Saturation measured 8 on 2026-08-03 (15 of 15 on an 'agent observability traces' pull), so the trigger now carries a second condition: before any escalation, measure the disclosure vocabulary specifically (agent audit trail, agent evidence, who has to produce the trace), because the observability framing is owned and the disclosure framing was 0 of 15 in that sample. Armature's launch counts as a capture-side vendor artifact and does not fire the trigger on its own."
+    }
+  ]
 }

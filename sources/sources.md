@@ -56,6 +56,9 @@ Sandbox egress is limited to the allowlist in deploy/deploy.py: api.apify.com, a
 
 ## Observed runtime notes (2026-08-03)
 
+- Apify auth must ride in the header, not the URL. Calling run-sync-get-dataset-items with ?token=$APIFY_API_KEY returns user-or-token-not-found, because the placeholder is substituted for the Authorization header path only. Always send Authorization: Bearer $APIFY_API_KEY and no token query parameter. Failed auth costs nothing but wastes a step.
+- Reading a known-good actor input, which sources.md tells you to do when a run comes back empty: there is no /v2/actor-runs/<id>/input endpoint. Fetch /v2/actor-runs/<id>, take defaultKeyValueStoreId, then GET /v2/key-value-stores/<store>/records/INPUT.
+
 - Datasets behind the egress allowlist: a host that is not in deploy/deploy.py returns a proxy 403 to curl, and a large file read through a fetch tool lands in the context window. Route it through the allowlisted Tavily extract endpoint (POST https://api.tavily.com/extract) with the response written to a file, then aggregate in the sandbox and read only totals. Validated on the 1.75 MB AI Hallucination Cases CSV, which never entered context. Tavily's extractor strips newlines, so CSV records need re-anchoring on a stable field before parsing.
 - Slack file delivery is not possible from the sandbox: files.getUploadURLExternal returns an upload URL on files.slack.com, which is not allowlisted, and the legacy files.upload endpoint returns method_deprecated. Until files.slack.com is added to the allowlist, document deliverables get committed to outbox/ and named in the Slack brief, with the assistant offered as the uploader.
 
