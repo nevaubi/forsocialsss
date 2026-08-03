@@ -14,9 +14,11 @@ Pipeline:
    README, charts as full-slide or half-slide matplotlib PNGs, no stock
    imagery unless Firas asked for visual flair (then generate_image for a
    title background at 16:9 and keep text contrast high).
-5. Verify: reopen with python-pptx, iterate slides, print each slide's
-   shape count and title text; confirm no empty slides, no overflowing
-   text frames (word_wrap on, autosize off, keep bullets short instead).
+5. Verify: reopen with python-pptx to confirm no empty slides, then
+   view_render the deck and inspect the slides you actually see: text
+   inside frames, consistent title positions, contrast on any image
+   backgrounds, charts readable from the back of a room. Fix and
+   re-render; up to two fix rounds.
 6. deliver_file the .pptx with a title; summarize the slide list in the
    reply so Firas can sanity-check the structure without opening it.
 

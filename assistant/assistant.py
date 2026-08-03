@@ -39,7 +39,7 @@ REPO = "nevaubi/forsocialsss"
 HANDLED_REACTION = "robot_face"
 DEPLOYMENT_NAME = "linkedin-heartbeat"
 ASSISTANT_AUTHOR = "assistant@forsocialsss"
-MAX_LOOP = 20
+MAX_LOOP = 30
 
 HEARTBEAT_EXACT = {"approve", "hold", "status", "retro now"}
 HEARTBEAT_PREFIX = ("edit:", "kill:", "posted ")
@@ -67,7 +67,7 @@ How to make changes, in order:
 
 Research: web_search for current information, fetch_url to read a specific page. Use them whenever the answer depends on anything outside this repository or your training data, and say what you found rather than guessing.
 
-Documents and visuals: when Firas asks for a PDF report, slide deck, infographic, chart, or image, FIRST read the matching recipe in assistant-skills/ (pdf-report.md, slide-deck.md, infographic.md) and follow its pipeline and quality checklist exactly. Build files under assistant-outputs/ with the run tool, verify them per the checklist, then send them to Firas with deliver_file. generate_image (FLUX on Fireworks) is for photographic or illustrative art; charts, layouts, and data graphics are built deterministically with matplotlib and PIL, which you can control precisely. You cannot see rendered images, so rely on the checklists, extractable text, and dimensions for self-review, and ask Firas for visual feedback when aesthetics matter. If a recipe repeatedly fails you, improve the recipe file itself and commit it.
+Documents and visuals: when Firas asks for a PDF report, slide deck, infographic, chart, or image, FIRST read the matching recipe in assistant-skills/ (pdf-report.md, slide-deck.md, infographic.md) and follow its pipeline and quality checklist exactly. Build files under assistant-outputs/ with the run tool. generate_image (FLUX on Fireworks) is for photographic or illustrative art; charts, layouts, and data graphics are built deterministically with matplotlib and PIL, which you can control precisely. You have native vision: after building, ALWAYS view_render the artifact and critique what you actually see against the recipe checklist (overflow, contrast, alignment, hierarchy, palette, thumbnail legibility), fix the build script, re-render, and repeat until it passes or two fix rounds are done. Only then deliver_file. If a recipe repeatedly fails you, improve the recipe file itself and commit it.
 
 Memory: when Firas states a durable preference, standing instruction, or decision, call remember with a one-line note. Sparingly, durable facts only.
 
@@ -373,6 +373,18 @@ TOOLS = [
                                             "2:3, default 1:1"}},
             "required": ["prompt", "filename"]}}},
     {"type": "function", "function": {
+        "name": "view_render",
+        "description": "Render a file to images and attach them to the "
+                       "conversation so you can visually inspect your own "
+                       "output. Supports png/jpg directly, pdf (page "
+                       "renders), and pptx (converted then rendered). Use "
+                       "after every build, before delivering.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string"},
+            "pages": {"type": "integer",
+                      "description": "max pages/slides to render, default 4"}},
+            "required": ["path"]}}},
+    {"type": "function", "function": {
         "name": "deliver_file",
         "description": "Upload a finished file from the workspace to Firas "
                        "in this Slack conversation. Use after the quality "
@@ -596,6 +608,75 @@ def tool_generate_image(args, ctx):
     return f"error: image generation failed: {last_err}"
 
 
+def _render_to_pngs(full, pages):
+    """Return a list of PNG file paths rendering the artifact."""
+    import shutil
+    outdir = os.path.join(REPO_ROOT, "assistant-outputs", ".render")
+    os.makedirs(outdir, exist_ok=True)
+    for f in os.listdir(outdir):
+        os.remove(os.path.join(outdir, f))
+    ext = os.path.splitext(full)[1].lower()
+    if ext in (".png", ".jpg", ".jpeg"):
+        return [full]
+    pdf = full
+    if ext == ".pptx":
+        soffice = shutil.which("soffice") or shutil.which("libreoffice")
+        if not soffice:
+            raise RuntimeError("libreoffice not available to render pptx; "
+                               "deliver the file and ask Firas to review")
+        subprocess.run([soffice, "--headless", "--convert-to", "pdf",
+                        "--outdir", outdir, full], timeout=180,
+                       capture_output=True)
+        pdf = os.path.join(outdir, os.path.splitext(
+            os.path.basename(full))[0] + ".pdf")
+        if not os.path.exists(pdf):
+            raise RuntimeError("pptx to pdf conversion produced no output")
+    if not pdf.lower().endswith(".pdf"):
+        raise RuntimeError(f"cannot render {ext} files")
+    if not shutil.which("pdftoppm"):
+        subprocess.run(["sudo", "apt-get", "install", "-y", "-qq",
+                        "poppler-utils"], timeout=120, capture_output=True)
+    subprocess.run(["pdftoppm", "-png", "-r", "110", "-f", "1",
+                    "-l", str(pages), pdf,
+                    os.path.join(outdir, "page")], timeout=120,
+                   capture_output=True)
+    outs = sorted(os.path.join(outdir, f) for f in os.listdir(outdir)
+                  if f.startswith("page") and f.endswith(".png"))
+    if not outs:
+        raise RuntimeError("rendering produced no pages")
+    return outs
+
+
+def tool_view_render(args, ctx):
+    import base64
+    path = safe_path(args["path"])
+    full = os.path.join(REPO_ROOT, path)
+    if not os.path.isfile(full):
+        return f"error: {path} does not exist"
+    pages = min(int(args.get("pages") or 4), 6)
+    pngs = _render_to_pngs(full, pages)
+    try:
+        from PIL import Image
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet",
+                        "pillow"], timeout=120, capture_output=True)
+        from PIL import Image
+    encoded = []
+    for p in pngs[:pages]:
+        img = Image.open(p).convert("RGB")
+        if img.width > 1280:
+            img = img.resize((1280, int(img.height * 1280 / img.width)))
+        tmp = p + ".jpg"
+        img.save(tmp, "JPEG", quality=80)
+        with open(tmp, "rb") as f:
+            encoded.append(base64.b64encode(f.read()).decode())
+    ctx["pending_images"] = encoded
+    ctx["pending_images_label"] = path
+    return (f"rendered {len(encoded)} page(s) of {path}; the images follow "
+            f"in the next message. Critique them against the recipe "
+            f"checklist before deciding they are done.")
+
+
 def tool_deliver_file(args, ctx):
     path = safe_path(args["path"])
     full = os.path.join(REPO_ROOT, path)
@@ -650,6 +731,7 @@ TOOL_IMPL = {
     "request_pr": tool_request_pr,
     "generate_image": tool_generate_image,
     "deliver_file": tool_deliver_file,
+    "view_render": tool_view_render,
 }
 
 
@@ -710,6 +792,16 @@ def respond(text, channel, ts, thread_ts=None):
             messages.append({"role": "tool",
                              "tool_call_id": tc.get("id", name),
                              "content": str(result)[:16000]})
+        if ctx.get("pending_images"):
+            content = [{"type": "text",
+                        "text": f"Rendered pages of "
+                                f"{ctx.get('pending_images_label')} for your "
+                                f"visual review:"}]
+            for b64 in ctx["pending_images"]:
+                content.append({"type": "image_url", "image_url": {
+                    "url": f"data:image/jpeg;base64,{b64}"}})
+            messages.append({"role": "user", "content": content})
+            ctx["pending_images"] = None
     if reply is None:
         reply = ("I hit the tool-step limit before finishing. State of the "
                  "working tree was reset; nothing partial was committed."

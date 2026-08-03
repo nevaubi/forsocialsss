@@ -17,8 +17,10 @@ Pipeline:
    body with header hierarchy, page numbers in the footer, charts inline.
 5. Verify before delivering:
    - run: python3 -c "from pypdf import PdfReader; r=PdfReader('assistant-outputs/report.pdf'); print(len(r.pages), 'pages'); print(r.pages[0].extract_text()[:200])"
-   - Page count sane for the content, first page text extracts correctly,
-     file size under 10MB.
+   - view_render the PDF and inspect what you see: headers not orphaned at
+     page bottoms, charts legible, margins even, palette right, nothing
+     overflowing or overlapping. Fix the build script and re-render; up to
+     two fix rounds.
 6. deliver_file with a descriptive title, and say in the reply what is in
    the report and what sources fed it.
 

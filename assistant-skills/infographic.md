@@ -17,9 +17,11 @@ Pipeline:
 4. generate_image only for a hero or background illustration; overlay a
    semi-transparent ink panel behind any text on top of it so contrast
    holds regardless of what FLUX produced.
-5. Verify: reopen with PIL, print size and mode; measure text widths with
-   font.getbbox before drawing so nothing overflows the canvas; keep 64px
-   side margins at 1080 width.
+5. Verify: measure text widths with font.getbbox before drawing so
+   nothing overflows, then view_render the PNG and judge it visually:
+   readable at thumbnail size, margins even, hierarchy obvious in one
+   glance, contrast holding over any generated art. Fix and re-render; up
+   to two fix rounds.
 6. deliver_file the PNG; state the dimensions and intended platform in the
    reply.
 

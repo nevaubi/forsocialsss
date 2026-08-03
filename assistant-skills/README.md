@@ -1,8 +1,9 @@
 # Assistant skills
 
 Recipes the assistant reads before document and visual tasks. Each file is a
-pipeline plus a quality checklist; follow them exactly, and improve them by
-commit when they fail in practice. Outputs are built under assistant-outputs/
+pipeline plus a quality checklist; follow them exactly, view_render your output and critique it with your own
+vision before delivering, and improve these files by commit when they fail
+in practice. Outputs are built under assistant-outputs/
 (gitignored) and delivered to Firas with the deliver_file tool.
 
 Shared brand style, all formats:
