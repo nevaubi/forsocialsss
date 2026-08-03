@@ -44,7 +44,7 @@ POST https://api.tavily.com/search with the TAVILY_API_KEY environment variable 
 ## Non-LinkedIn free sources, every cycle
 
 - Hacker News (Algolia API): https://hn.algolia.com/api/v1/search_by_date?tags=story&query=QUERY&numericFilters=points%3E20 plus front page via https://hn.algolia.com/api/v1/search?tags=front_page
-- arXiv API: https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=15 (titles and abstracts only). Observed 2026-08-02: the http scheme returns an empty body in the sandbox and the OR-joined category query returns nothing; use https and a single category, then a second call for cs.CL if needed.
+- arXiv API: https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=15 (titles and abstracts only). Observed 2026-08-02: the http scheme returns an empty body in the sandbox and the OR-joined category query returns nothing; use https and a single category, then a second call for cs.CL if needed. Observed 2026-08-02 19:20 CT: export.arxiv.org returned DNS resolution failure in the sandbox on both attempts this cycle even over https, so the source was logged dead and skipped. If it fails on two consecutive cycles, raise it in the retro as an allowlist or DNS question rather than retrying inside the scan.
 - Vendor primary sources by fetch when a claim references them: anthropic.com/news, openai.com/news, blog.google/technology/ai
 - Legal tech press by fetch, headline scan: lawsitesblog.com, artificiallawyer.com, law.com/legaltechnews, complexdiscovery.com
 

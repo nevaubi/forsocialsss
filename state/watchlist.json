@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02T17:25:00-05:00",
+  "updated": "2026-08-02T19:40:00-05:00",
   "items": [
     {
       "slug": "openai-astra-multi-agent",
@@ -10,17 +10,17 @@
     },
     {
       "slug": "agent-memory-research",
-      "trigger": "escalate if a vendor ships native memory in a shipping product, a major lab follows up on Metis, or 3+ tracked creators post on agent memory with the same framing",
+      "trigger": "escalate on the memory-as-trust-boundary angle: a documented memory-poisoning or persistent-context incident, a vendor shipping memory provenance or audit controls, or a lab follow-up on Metis. Generic 'agents need memory' framing is now saturated and is a kill, not an escalation",
       "added": "2026-08-02T14:30:00-05:00",
       "expires": "2026-08-09T14:30:00-05:00",
-      "notes": "momentum 5 to 7 this cycle (Metis, PRO-LONG, Experience Distillation); LinkedIn side still shallow, so the angle stays open"
+      "notes": "saturation 4 to 5 on a 15-post relevance pull (explainers at 824 likes, vendor launches); the open angle narrowed to memory as a write target that survives sessions"
     },
     {
       "slug": "agent-liability-insurance",
-      "trigger": "escalate if a second firm or an insurer publishes underwriting criteria for autonomous agents, or Crosby publishes any detail on what its agents must log and prove",
+      "trigger": "escalate when the criteria appear in public: Crosby, one of its auditors, an insurer, a bar association or a state regulator publishing what an agent must log, prove or pass to be underwritten or approved for autonomous work",
       "added": "2026-08-02T15:40:00-05:00",
       "expires": "2026-08-16T15:40:00-05:00",
-      "notes": "P1 with high standing but low momentum; keep strictly to architecture, never liability opinion"
+      "notes": "primary source found 08-02: Crosby's co-founder says auditors are defining evals now and is asking for partners; high-fit comment opportunity for the retro digest, architecture-side only"
     },
     {
       "slug": "legora-wexler-litigation-ai",
@@ -31,10 +31,10 @@
     },
     {
       "slug": "eval-independence-agent-persistence",
-      "trigger": "escalate if OpenAI publishes what the notes were and where they lived, or METR/Redwood publish their review, or any eval vendor ships run-isolation guarantees against cross-run state",
+      "trigger": "escalate on an artifact, not commentary: the Anthropic lightly redacted transcript promised within a week of 07-30, the METR/Redwood published review, or OpenAI's own technical report saying what the cross-run notes were and where they lived",
       "added": "2026-08-02T17:25:00-05:00",
       "expires": "2026-08-09T17:25:00-05:00",
-      "notes": "strong fit and open field, but the load-bearing fact is single-sourced reporting OpenAI disputes; do not build a post on it yet"
+      "notes": "trigger partially fired 08-02 (METR/Redwood agreement announced, Redwood published its own read); still no primary document on the notes themselves"
     },
     {
       "slug": "personal-injury-ai-intake",
@@ -42,6 +42,13 @@
       "added": "2026-08-02T17:25:00-05:00",
       "expires": "2026-08-12T17:25:00-05:00",
       "notes": "P1 adjacency to his day job means the conflict check runs before the editorial one"
+    },
+    {
+      "slug": "eval-design-grader-gaming",
+      "trigger": "next cycle if still qualifying: escalate as the cycle's one delivery with a mechanism-level angle on eval design (what the ExploitGym constraints show about graders as an attack surface, and what that means for production eval harnesses). Kill it if the incident framing has to carry the post, since that lane is saturated at 8",
+      "added": "2026-08-02T19:40:00-05:00",
+      "expires": "2026-08-09T19:40:00-05:00",
+      "notes": "qualified on scores this cycle (m6 s3 f9) and was blocked only by the one-delivery-per-cycle rule; highest-fit candidate on the board"
     }
   ]
 }

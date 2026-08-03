@@ -5,7 +5,7 @@ description: Every Slack message format the agent is allowed to send, and the ru
 
 # Slack brief
 
-Target: DM to Firas per the Slack protocol in CLAUDE.md. All follow-ups about a draft are thread replies on its original delivery message (store slack_ts in the queue entry). Quiet hours per CLAUDE.md: nothing between 22:00 and 07:00 America/Chicago; queue it.
+Target: DM to Firas per the Slack protocol in CLAUDE.md. All follow-ups about a draft are thread replies on its original delivery message (store slack_ts in the queue entry). No quiet hours: Firas removed them on 2026-08-02, so message at any hour when something warrants it.
 
 ## Draft delivery (maximum 1 per cycle, two messages)
 
