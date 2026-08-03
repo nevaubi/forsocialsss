@@ -1,9 +1,9 @@
 {
-  "updated": "2026-08-02T19:40:00-05:00",
+  "updated": "2026-08-02T21:40:00-05:00",
   "items": [
     {
       "slug": "openai-astra-multi-agent",
-      "trigger": "next cycle if still qualifying: escalate only with the primary OpenAI report in hand and an angle beyond the announcement itself (verification of long-horizon agent claims, or what Lean-style certificates imply for production eval harnesses)",
+      "trigger": "first half now satisfied, the primary OpenAI post exists (announced inside the ten-advances math post, confirmed 08-02). Escalate only on the second half: an angle beyond the announcement, specifically how long-horizon multi-agent claims get verified, or what proof-style certificates imply for production eval harnesses. At saturation 8 the default is to let it expire",
       "added": "2026-08-02T15:40:00-05:00",
       "expires": "2026-08-09T15:40:00-05:00",
       "notes": "runner-up this cycle, lost on fit 8 vs 10; saturation already 7, so it may simply expire"
@@ -34,7 +34,7 @@
       "trigger": "escalate on an artifact, not commentary: the Anthropic lightly redacted transcript promised within a week of 07-30, the METR/Redwood published review, or OpenAI's own technical report saying what the cross-run notes were and where they lived",
       "added": "2026-08-02T17:25:00-05:00",
       "expires": "2026-08-09T17:25:00-05:00",
-      "notes": "trigger partially fired 08-02 (METR/Redwood agreement announced, Redwood published its own read); still no primary document on the notes themselves"
+      "notes": "trigger checked and did not fire 2026-08-02 21:10 CT; none of the three artifacts published yet. Anthropic's own one-week commitment dates from 07-30, so re-check around 08-06 rather than every cycle"
     },
     {
       "slug": "personal-injury-ai-intake",
@@ -45,10 +45,10 @@
     },
     {
       "slug": "eval-design-grader-gaming",
-      "trigger": "next cycle if still qualifying: escalate as the cycle's one delivery with a mechanism-level angle on eval design (what the ExploitGym constraints show about graders as an attack surface, and what that means for production eval harnesses). Kill it if the incident framing has to carry the post, since that lane is saturated at 8",
+      "trigger": "escalate as the cycle's one delivery once the agent-security draft resolves, and only on the measured-design angle: METR's 43x gap between RE-Bench and HCAST reward hacking with the scoring function visible, the prompt table where telling the model to solve it as intended raised cheating to 95%, and the 44-incident finding that no agent effectively erased its logs. Kill it if any of three things happen: the post needs the Hugging Face incident to carry it, a large account publishes the METR numbers first, or the honest version reduces to 'graders are gameable', which six small accounts already posted between 07-07 and 08-01",
       "added": "2026-08-02T19:40:00-05:00",
       "expires": "2026-08-09T19:40:00-05:00",
-      "notes": "qualified on scores this cycle (m6 s3 f9) and was blocked only by the one-delivery-per-cycle rule; highest-fit candidate on the board"
+      "notes": "did not escalate 2026-08-02 21:20 CT despite qualifying on paper. Saturation corrected 3 to 6 on a relevance pull in the topic's own vocabulary, which fails the gate, and a draft on adjacent material was already sitting unanswered in Slack from 100 minutes earlier. Research is done and stored in the topic notes, so the next escalation costs no new spend"
     }
   ]
 }
