@@ -67,6 +67,8 @@ How to make changes, in order:
 
 Research: web_search for current information, fetch_url to read a specific page. Use them whenever the answer depends on anything outside this repository or your training data, and say what you found rather than guessing.
 
+Documents and visuals: when Firas asks for a PDF report, slide deck, infographic, chart, or image, FIRST read the matching recipe in assistant-skills/ (pdf-report.md, slide-deck.md, infographic.md) and follow its pipeline and quality checklist exactly. Build files under assistant-outputs/ with the run tool, verify them per the checklist, then send them to Firas with deliver_file. generate_image (FLUX on Fireworks) is for photographic or illustrative art; charts, layouts, and data graphics are built deterministically with matplotlib and PIL, which you can control precisely. You cannot see rendered images, so rely on the checklists, extractable text, and dimensions for self-review, and ask Firas for visual feedback when aesthetics matter. If a recipe repeatedly fails you, improve the recipe file itself and commit it.
+
 Memory: when Firas states a durable preference, standing instruction, or decision, call remember with a one-line note. Sparingly, durable facts only.
 
 Never print, request, or attempt to read credentials; your shell runs with them scrubbed. When anything fails, say exactly what failed rather than papering over it. When repository instructions and convenience conflict, the repository wins."""
@@ -309,7 +311,7 @@ TOOLS = [
             "required": ["path", "content"]}}},
     {"type": "function", "function": {
         "name": "run",
-        "description": "Run a shell command in the repository root, 60s "
+        "description": "Run a shell command in the repository root, 120s "
                        "timeout, credentials scrubbed from the environment. "
                        "For verification: py_compile, yaml checks, grep, git "
                        "log. Not for pushing; use commit_and_push.",
@@ -356,6 +358,31 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {
             "note": {"type": "string"}},
             "required": ["note"]}}},
+    {"type": "function", "function": {
+        "name": "generate_image",
+        "description": "Generate an image with FLUX on Fireworks and save "
+                       "it under assistant-outputs/. For photographic or "
+                       "illustrative art only; build charts and layouts "
+                       "with matplotlib or PIL via run instead.",
+        "parameters": {"type": "object", "properties": {
+            "prompt": {"type": "string"},
+            "filename": {"type": "string",
+                         "description": "output name, .jpg, no directories"},
+            "aspect_ratio": {"type": "string",
+                             "description": "one of 1:1 16:9 9:16 4:5 3:2 "
+                                            "2:3, default 1:1"}},
+            "required": ["prompt", "filename"]}}},
+    {"type": "function", "function": {
+        "name": "deliver_file",
+        "description": "Upload a finished file from the workspace to Firas "
+                       "in this Slack conversation. Use after the quality "
+                       "checklist passes.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string",
+                     "description": "workspace-relative path, e.g. "
+                                    "assistant-outputs/report.pdf"},
+            "title": {"type": "string"}},
+            "required": ["path"]}}},
     {"type": "function", "function": {
         "name": "request_pr",
         "description": "Only when Firas explicitly asks for a pull request: "
@@ -418,12 +445,12 @@ def tool_run(args, ctx):
     env["HOME"] = os.environ.get("HOME", "/tmp")
     try:
         r = subprocess.run(["bash", "-c", args["command"]], cwd=REPO_ROOT,
-                           capture_output=True, text=True, timeout=60,
+                           capture_output=True, text=True, timeout=120,
                            env=env)
         out = (r.stdout + ("\n" + r.stderr if r.stderr else "")).strip()
         return f"exit {r.returncode}\n{out[:8000]}"
     except subprocess.TimeoutExpired:
-        return "error: command timed out at 60s"
+        return "error: command timed out at 120s"
 
 
 def tool_git_diff(args, ctx):
@@ -529,6 +556,71 @@ def tool_remember(args, ctx):
     return "remembered"
 
 
+IMAGE_SIZES = {"1:1": (1024, 1024), "16:9": (1344, 768), "9:16": (768, 1344),
+               "4:5": (896, 1152), "3:2": (1216, 832), "2:3": (832, 1216)}
+
+
+def tool_generate_image(args, ctx):
+    key = os.environ.get("FIREWORKS_API_KEY", "").strip()
+    if not key:
+        return "error: FIREWORKS_API_KEY not available"
+    name = os.path.basename(args["filename"]) or "image.jpg"
+    if not name.lower().endswith((".jpg", ".jpeg", ".png")):
+        name += ".jpg"
+    model = os.environ.get("IMAGE_MODEL", "flux-1-schnell-fp8")
+    w, h = IMAGE_SIZES.get(args.get("aspect_ratio", "1:1"), (1024, 1024))
+    body = json.dumps({"prompt": args["prompt"], "width": w, "height": h}).encode()
+    last_err = None
+    for path in (
+        f"https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/{model}/text_to_image",
+        f"https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/{model}",
+    ):
+        req = urllib.request.Request(path, data=body, method="POST")
+        req.add_header("Authorization", f"Bearer {key}")
+        req.add_header("content-type", "application/json")
+        req.add_header("accept", "image/jpeg")
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = resp.read()
+            outdir = os.path.join(REPO_ROOT, "assistant-outputs")
+            os.makedirs(outdir, exist_ok=True)
+            out = os.path.join(outdir, name)
+            with open(out, "wb") as f:
+                f.write(data)
+            return (f"generated assistant-outputs/{name} "
+                    f"({len(data)} bytes, {w}x{h})")
+        except urllib.error.HTTPError as e:
+            last_err = f"HTTP {e.code}: {e.read().decode(errors='replace')[:300]}"
+        except Exception as e:
+            last_err = str(e)[:300]
+    return f"error: image generation failed: {last_err}"
+
+
+def tool_deliver_file(args, ctx):
+    path = safe_path(args["path"])
+    full = os.path.join(REPO_ROOT, path)
+    if not os.path.isfile(full):
+        return f"error: {path} does not exist"
+    size = os.path.getsize(full)
+    if size > 90 * 1024 * 1024:
+        return "error: file exceeds Slack's 90MB limit"
+    name = os.path.basename(full)
+    up = slack("files.getUploadURLExternal",
+               {"filename": name, "length": size})
+    with open(full, "rb") as f:
+        data = f.read()
+    req = urllib.request.Request(up["upload_url"], data=data, method="POST")
+    req.add_header("content-type", "application/octet-stream")
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        resp.read()
+    slack("files.completeUploadExternal", {
+        "files": json.dumps([{"id": up["file_id"],
+                              "title": args.get("title", name)}]),
+        "channel_id": ctx["channel"],
+    })
+    return f"delivered {name} ({size} bytes) to the conversation"
+
+
 def tool_request_pr(args, ctx):
     token = os.environ["GITHUB_TOKEN"].strip()
     http(
@@ -556,6 +648,8 @@ TOOL_IMPL = {
     "fetch_url": tool_fetch_url,
     "remember": tool_remember,
     "request_pr": tool_request_pr,
+    "generate_image": tool_generate_image,
+    "deliver_file": tool_deliver_file,
 }
 
 
