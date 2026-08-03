@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-03T09:40:00-05:00",
+  "updated": "2026-08-03T11:18:00-05:00",
   "items": [
     {
       "slug": "openai-astra-multi-agent",
@@ -70,6 +70,13 @@
       "added": "2026-08-03T09:40:00-05:00",
       "expires": "2026-08-10T09:40:00-05:00",
       "notes": "saturation 5 in topics.json is a provisional prior, never measured. The 08-02 eval-design correction went 3 to 6 the moment the lane was measured in its own words, so this trigger requires the measurement before the draft, not after"
+    },
+    {
+      "slug": "legal-ai-hallucination-sanctions",
+      "trigger": "this cycle's delivered draft, founder-directed. The follow-up post is already identified and needs no new research: the pro se inversion (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) and what it does to verification load, since it moves the burden from checking your own citations to checking inbound documents from parties with no verification process at all. Escalate that only after this draft resolves, and re-measure saturation in that sub-lane's own vocabulary first, because Law.com covered the pro se surge on 07-14. Kill the lane if a large account publishes the attribution or tool-provenance read before Firas posts",
+      "added": "2026-08-03T11:18:00-05:00",
+      "expires": "2026-08-10T11:18:00-05:00",
+      "notes": "saturation measured 7 on a 15-post relevance pull, correcting the assistant's unmeasured 4. Two of my three candidate angles were already published (Brinsa 07-21 organizational negligence, Boyer 08-03 00:31 failure taxonomy), which is why the delivered draft leads on attribution instead. The database is updated daily, so the 1,822 figure ages: re-read the primary page before any redelivery and expect the number to have moved"
     }
   ]
 }

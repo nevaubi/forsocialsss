@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-03T07:30:00-05:00",
+  "updated": "2026-08-03T11:18:00-05:00",
   "drafts": [
     {
       "id": "agent-security-incidents-20260802",
@@ -181,6 +181,81 @@
         {
           "version": "v1",
           "delivered_at": "2026-08-03T07:30:00-05:00",
+          "outcome": "awaiting reply"
+        }
+      ]
+    },
+    {
+      "id": "legal-ai-hallucination-sanctions-20260803",
+      "slug": "legal-ai-hallucination-sanctions",
+      "pillar": "P1",
+      "status": "delivered",
+      "angle_memo": {
+        "claim": "Courts are now pricing hallucinated citations per citation, while the record that would explain how the citation got into the filing does not exist. Attribution, not existence checking, is the missing layer: the one sanctions record that names a tool is contradicted by the vendor with no way to settle it, and most records name no tool at all. For anyone building a pipeline that cites sources, the buildable lesson is retrieval-level logging, claims bound to openable passages, and a trace that survives the filing.",
+        "evidence": [
+          {
+            "point": "Charlotin AI Hallucination Cases database, verified first-hand and last updated 1 August 2026: 1,822 decisions identified worldwide where a court or tribunal found (or implied) that a party relied on hallucinated AI content",
+            "url": "https://www.damiencharlotin.com/hallucinations/"
+          },
+          {
+            "point": "Same source, jurisdiction filter: USA 1,254, Canada 204, Australia 97, UK 61, Israel 55",
+            "url": "https://www.damiencharlotin.com/hallucinations/"
+          },
+          {
+            "point": "Same source, party filter: Pro Se Litigant 1,065, Lawyer 710, Judge 26, Expert 13, Prosecutor 5, Government Lawyer 3, Paralegal 2, Federal Defender 1, Arbitrator 1",
+            "url": "https://www.damiencharlotin.com/hallucinations/"
+          },
+          {
+            "point": "Same source, nature of hallucination: Fabricated 1,519, Misrepresented 757, False Quotes 493, Outdated Advice 33; by subcategory Case Law 1,635, Legal Norm 207, Exhibits and Submissions 130",
+            "url": "https://www.damiencharlotin.com/hallucinations/"
+          },
+          {
+            "point": "In re Rosslyn2016, LLC (S.D. Texas Bankruptcy, decision 2026-07-14): monetary penalty 29,877 USD with outcome recorded as CLE on generative AI, civil contempt and adverse costs order, across five recorded hallucination items (two fabricated quotations attributed to Dinnubilo and Symington, a fabricated quotation attributed to Wilcher and Bennett Funding Group, a misused citation for attorney-client privilege, and a misrepresentation of Table Talk)",
+            "url": "https://www.damiencharlotin.com/hallucinations/hallucinations/download.csv"
+          },
+          {
+            "point": "Same record: the AI Tool field reads 'Westlaw Precision' and the database's vendor-disputed field records that Thomson Reuters contends none of the alleged hallucinations originated in Westlaw",
+            "url": "https://www.damiencharlotin.com/hallucinations/hallucinations/download.csv"
+          },
+          {
+            "point": "Across the database CSV the AI Tool column is overwhelmingly 'Implied' or 'Unidentified'; named tools (ChatGPT, Claude, GPT-3.5, LegalPA, Westlaw Precision) are the rare exception",
+            "url": "https://www.damiencharlotin.com/hallucinations/hallucinations/download.csv"
+          },
+          {
+            "point": "Illinois appellate court, Scott v. Illinois Human Rights Commission, decision 2026-07-28: fine of $1,500 for each false citation and quotation, a rate the court noted is higher than other courts have imposed, with the court saying higher fines may have to be imposed to deter improper AI use",
+            "url": "https://www.abajournal.com/news/article/illinois-appeals-court-imposes-higher-sanction-on-attorney-to-deter-unacceptable-misuse-of-ai"
+          },
+          {
+            "point": "Same matter in the database: monetary penalty 15,000 USD, outcome monetary fine plus bar referral, AI tool recorded as ChatGPT",
+            "url": "https://www.damiencharlotin.com/hallucinations/"
+          },
+          {
+            "point": "Sullivan & Cromwell letter of April 18 2026 to Chief Judge Martin Glenn (S.D.N.Y. Bankruptcy) on an April 9 emergency motion: the firm stated 'The firm's policies on the use of AI were not followed in connection with the preparation of the motion', that its review process did not identify the inaccurate citations, and that opposing counsel Boies Schiller Flexner brought the errors to its attention",
+            "url": "https://www.globallegalpost.com/news/sullivan-cromwell-apologises-for-ai-hallucinations-in-letter-to-us-court-1300253238"
+          },
+          {
+            "point": "Not used in the copy but verified as context: Law.com 2026-07-14 reports AI-driven growth in pro se filings with judges sanctioning unrepresented parties for hallucinations",
+            "url": "https://www.law.com/2026/07/14/were-in-a-new-terrain-ai-bolsters-pro-se-litigation-but-judges-raise-alarms"
+          }
+        ],
+        "why_now": "Founder-directed on 2026-08-03 at 10:06 CT and confirmed at 10:15 CT, which is the operative reason. The material is also live rather than retrospective: the database was updated 1 August, the Illinois per-citation rate landed 28 July, and both facts were verified this cycle. Saturation was measured at 7 rather than accepted at the banked 4, and the measurement changed the angle rather than the decision: a 15-post relevance pull in the lane's own vocabulary came back 15 of 15 on topic, with the aggregate-database read published by Markus Brinsa on 07-21 and the failure-taxonomy read published 15 hours before this cycle. Both were angles I had intended to use. The attribution angle is what no post in the sample touches, and it is carried by a record that reads the same today as it will next week.",
+        "why_firas": "profile.md documents structured logging, immutable audit trails and explainability mechanisms at every tier in legal, finance and medical work; automated ETL over tens of millions of externally sourced documents; hybrid search and reranking for agentic RAG; and evaluation harnesses plus AI observability. A post about what a citation pipeline must log to be defensible afterwards is that surface exactly. The post takes no position on any matter, offers no legal advice, names no sanctioned individual, and uses only public court records and public firm statements. P1 flagship pillar. Nothing touches Seeger Weiss, WR Immigration or any client, and the adjacency to his day job was flagged to him before drafting.",
+        "counterpoint": "Steelman: attribution is legally beside the point. Rule 11 and its state analogues put the duty on the person who signs, and courts have said counsel bears ultimate responsibility even when a contractor or a vendor tool produced the text, so a perfect retrieval log would not have saved anyone in these records. A litigator can fairly say the answer has been known since 2023 and is simply to read the cases you cite. Second and stronger objection: the empty tool column is an artifact of how judicial opinions get written, not proof that firms lack logs. Judges have no reason to name a product and litigants have every incentive not to, so inferring missing engineering provenance from missing judicial attribution is an overreach. The post answers by staying inside what the record shows rather than claiming what firms have: it reports what the field contains, and it addresses the build lesson to people building pipelines rather than to lawyers. The honest scope of the claim is that provenance does not move the duty, it makes the duty performable and makes a vendor dispute resolvable. Falsifiable version: if firms can already produce, on demand, the retrieved passage and model output behind each citation in a filing, the post is unnecessary. The Rosslyn record, where the firm and the vendor disagree in public with nothing to settle it, is the evidence that they cannot.",
+        "artifact": "The Rosslyn2016 record: $29,877 plus civil contempt and CLE, five recorded hallucination items, AI tool listed as Westlaw Precision, and the vendor on record contending that none of it came from Westlaw, with nothing in between to resolve the question. Alongside it, a tool column that mostly reads Implied or Unidentified across 1,822 decisions, while an Illinois court prices false citations at $1,500 each."
+      },
+      "post_text": "A bankruptcy court fined a lawyer $29,877 over five bad citations.\n\nThe record names the tool it blames: Westlaw Precision.\n\nThomson Reuters says none of the hallucinations came from Westlaw.\n\nNothing in the record can settle that. No log, no retrieval trace, no version. Just a filing, a denial, and a fine.\n\nThat case is one row in Damien Charlotin's hallucination database.\n\n1,822 decisions worldwide where a court found a filing relied on hallucinated AI content. 1,254 of them in the US.\n\nUpdated August 1.\n\nScroll the column that names the AI tool. It mostly says Implied, or Unidentified.\n\nCourts are pricing the damage anyway.\n\nOn July 28 an Illinois appellate court set $1,500 per false citation and quotation.\n\n$15,000 for one brief. The court said the rate may have to go higher.\n\nIn April, Sullivan & Cromwell told a bankruptcy judge its own AI policy had not been followed.\n\nOpposing counsel found the errors first.\n\nNot every failure is an invented case. The database splits them: 1,519 fabricated, 757 misrepresented, 493 false quotes.\n\nA real case cited for something it never said survives any check that only asks whether the case exists.\n\nIf you build the pipeline, design for the part that gets audited later:\n\n- Log what retrieval returned, not only what the model wrote.\n- Bind every claim to a passage someone can open. A citation with no bound passage is a lead, not support.\n- Keep the trace. If you cannot show what the model saw, you cannot defend the work or clear your vendor.\n\nSanctions are now priced per citation. The record that would explain how the citation got there does not exist.\n\nWorth an hour in that database if you build anything that cites its sources.",
+      "format": "text",
+      "predicted": {
+        "band": "quiet",
+        "rationale": "Fourth post on a 42-follower account, so the cold-start floor still dominates. The lane is crowded at saturation 7, which means competing reach but also an audience that already reads this subject; the attribution angle is unclaimed in the measured sample, and legal ops is the priority-two audience most likely to save it."
+      },
+      "delivered_at": "2026-08-03T11:18:00-05:00",
+      "slack_ts": "1785774524.745989",
+      "resolution": null,
+      "revisions": [
+        {
+          "version": "v1",
+          "delivered_at": "2026-08-03T11:18:00-05:00",
           "outcome": "awaiting reply"
         }
       ]
