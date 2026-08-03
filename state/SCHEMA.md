@@ -103,3 +103,15 @@ The inbox step also records the last processed Slack timestamp inside the reason
 ## lessons.md
 
 Markdown, append only, dated H2 entries, newest last. Retro owns it; heartbeat may append generalizable kill reasons.
+
+## slack-cursor.json
+
+{"last_read_ts": "<Slack ts string>"}. The heartbeat's directive-read cursor: it processes DM messages strictly newer than this, then advances it in the same cycle commit. "0" means read from the beginning of the retention window.
+
+## assistant-memory.md
+
+The assistant agent's durable memory: dated one-line notes appended when Firas states preferences, standing instructions, or decisions. Injected into every assistant exchange. Human-editable; the heartbeat leaves it alone.
+
+## archive/
+
+Rotated history. run-log-<YYYY-MM>.jsonl files hold run-log lines moved out during retro state hygiene.

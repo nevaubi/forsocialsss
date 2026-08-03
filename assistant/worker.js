@@ -1,5 +1,9 @@
 // Instant-reply receiver for the forsocialsss assistant.
 //
+// NOT CURRENTLY DEPLOYED. The live instant path is assistant/listener.py
+// (Socket Mode). This file predates the syntax-free router and persistent
+// memory; port those from assistant.py before ever deploying it.
+//
 // Deploy on Cloudflare Workers (free tier). Slack's Events API pushes every
 // DM to this worker the moment it is sent; the worker verifies the request
 // signature, asks Kimi K3 on Fireworks with current repo state as context,

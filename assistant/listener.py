@@ -72,7 +72,7 @@ def handle(client: SocketModeClient, req: SocketModeRequest):
         return
     channel = ev["channel"]
     try:
-        respond(text, channel, ev["ts"])
+        respond(text, channel, ev["ts"], ev.get("thread_ts"))
         print(f"listener: handled {ev['ts']}", flush=True)
     except Exception as e:  # keep the listener alive on any single failure
         print(f"listener: error handling {ev['ts']}: {e}", flush=True)

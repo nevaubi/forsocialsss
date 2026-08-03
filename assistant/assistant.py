@@ -68,6 +68,8 @@ You will receive the current system state and Firas's message. Respond with ONLY
 4. He explicitly asks for a pull request or says he wants to review before it lands:
 {"mode": "pr", "reply": "<one line saying the PR is being prepared>"}
 
+Any of the four shapes may additionally carry "remember": ["<one-line durable fact>"] when Firas states something worth keeping across conversations: a preference, a standing instruction, a decision, or context about why a setting is what it is. Be sparing; remember durable facts only, never small talk, never transient state the repo already tracks. These lines are appended to state/assistant-memory.md, which you receive in every future exchange.
+
 Rules for change mode:
 - Every file must contain its COMPLETE new content. Unchanged files are omitted.
 - Touch the minimum set of files that fulfills the instruction.
@@ -200,17 +202,19 @@ def deployment_status():
 
 def build_context():
     parts = [
-        ("Constitution (CLAUDE.md)", read_file("CLAUDE.md", 6000)),
-        ("Strategy", read_file("identity/strategy.md", 3000)),
-        ("Voice rules", read_file("identity/voice.md", 2500)),
-        ("Topic board", read_file("state/topics.json", 4000)),
-        ("Watchlist", read_file("state/watchlist.json", 2000)),
-        ("Draft queue", read_file("state/queue.json", 5000)),
-        ("Posted history", read_file("state/posted.json", 2000)),
-        ("Sources and budgets", read_file("sources/sources.md", 3500)),
-        ("Run log, last 15 lines", tail_file("state/run-log.jsonl", 15)),
-        ("Lessons, tail", tail_file("state/lessons.md", 40)),
-        ("Recent commits", git("log", "--oneline", "-10")),
+        ("Assistant memory (durable notes from Firas)",
+         read_file("state/assistant-memory.md", 6000)),
+        ("Constitution (CLAUDE.md)", read_file("CLAUDE.md", 20000)),
+        ("Strategy", read_file("identity/strategy.md", 8000)),
+        ("Voice rules", read_file("identity/voice.md", 8000)),
+        ("Topic board", read_file("state/topics.json", 8000)),
+        ("Watchlist", read_file("state/watchlist.json", 3000)),
+        ("Draft queue", read_file("state/queue.json", 10000)),
+        ("Posted history", read_file("state/posted.json", 3000)),
+        ("Sources and budgets", read_file("sources/sources.md", 8000)),
+        ("Run log, last 20 lines", tail_file("state/run-log.jsonl", 20)),
+        ("Lessons, tail", tail_file("state/lessons.md", 60)),
+        ("Recent commits", git("log", "--oneline", "-12")),
         ("Live deployment status", deployment_status()),
         ("Repository file listing", git("ls-files")),
     ]
@@ -243,20 +247,43 @@ def dm_channel():
             "im:write and im:read (see README scope list)")
 
 
-def recent_conversation(channel, limit=12):
+def recent_conversation(channel, thread_ts=None, limit=30):
+    """Top-level DM history, merged with the active thread's replies when
+    the message being answered lives inside one, chronological, capped by
+    total size so long sessions do not blow the prompt up."""
+    msgs = []
     try:
         resp = slack("conversations.history", {"channel": channel,
                                                "limit": limit})
-        convo = []
-        for m in sorted(resp.get("messages", []), key=lambda m: float(m["ts"])):
-            text = (m.get("text") or "").strip()
-            if not text:
-                continue
-            role = "user" if m.get("user") == FIRAS_ID else "assistant"
-            convo.append({"role": role, "content": text[:2000]})
-        return convo
+        msgs.extend(resp.get("messages", []))
     except Exception:
-        return []
+        pass
+    if thread_ts:
+        try:
+            resp = slack("conversations.replies", {"channel": channel,
+                                                   "ts": thread_ts,
+                                                   "limit": 30})
+            msgs.extend(resp.get("messages", []))
+        except Exception:
+            pass
+    seen, convo = set(), []
+    for m in sorted(msgs, key=lambda m: float(m["ts"])):
+        if m["ts"] in seen:
+            continue
+        seen.add(m["ts"])
+        text = (m.get("text") or "").strip()
+        if not text:
+            continue
+        role = "user" if m.get("user") == FIRAS_ID else "assistant"
+        convo.append({"role": role, "content": text[:2000]})
+    total = 0
+    kept = []
+    for m in reversed(convo):
+        total += len(m["content"])
+        if total > 24000:
+            break
+        kept.append(m)
+    return list(reversed(kept))
 
 
 # --------------------------------------------------------------- executing
@@ -345,10 +372,24 @@ def dispatch_apply(instruction, channel):
     )
 
 
-def respond(text, channel, ts):
+def append_memory(lines):
+    """Persist durable notes to state/assistant-memory.md as a commit."""
+    import datetime
+    path = os.path.join(REPO_ROOT, "state", "assistant-memory.md")
+    today = datetime.date.today().isoformat()
+    with open(path, "a", encoding="utf-8") as f:
+        for line in lines:
+            f.write(f"- {today}: {line.strip()}\n")
+    git("add", "state/assistant-memory.md")
+    git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
+        "commit", "-m", "assistant: memory note")
+    push_main()
+
+
+def respond(text, channel, ts, thread_ts=None):
     """Route one message from Firas and act on it. Used by both the instant
     listener and the fallback poller."""
-    convo = recent_conversation(channel)
+    convo = recent_conversation(channel, thread_ts)
     context = build_context()
     raw = kimi(ROUTER_SYSTEM, convo + [{
         "role": "user",
@@ -380,9 +421,15 @@ def respond(text, channel, ts):
         reply = plan.get("reply") or "I did not get a usable answer, try rephrasing."
 
     slack("chat.postMessage", {"channel": channel, "text": reply[:39000],
-                               "thread_ts": ts})
+                               "thread_ts": thread_ts or ts})
     slack("reactions.add", {"channel": channel, "name": HANDLED_REACTION,
                             "timestamp": ts})
+    remember = [x for x in (plan.get("remember") or []) if str(x).strip()]
+    if remember:
+        try:
+            append_memory([str(x) for x in remember][:5])
+        except Exception as e:
+            print(f"respond: memory append failed: {e}")
 
 
 # ------------------------------------------------------------------ modes
@@ -404,12 +451,38 @@ def chat():
         if is_heartbeat_directive(m.get("text", "")):
             continue
         pending.append(m)
+    # Thread replies never appear in conversations.history, so sweep the
+    # threads of recent top-level messages for unhandled replies too.
+    for m in history:
+        if not m.get("reply_count"):
+            continue
+        if now - float(m.get("latest_reply", m["ts"])) > 86400:
+            continue
+        try:
+            replies = slack("conversations.replies",
+                            {"channel": channel, "ts": m["ts"],
+                             "limit": 50}).get("messages", [])
+        except Exception:
+            continue
+        for r in replies:
+            if r.get("user") != FIRAS_ID or r.get("subtype"):
+                continue
+            if r["ts"] == m["ts"] or now - float(r["ts"]) > 86400:
+                continue
+            reactions = {x["name"] for x in r.get("reactions", [])}
+            if HANDLED_REACTION in reactions:
+                continue
+            if is_heartbeat_directive(r.get("text", "")):
+                continue
+            r["_thread_ts"] = m["ts"]
+            pending.append(r)
     if not pending:
         print("chat: nothing pending")
         return
     for msg in sorted(pending, key=lambda m: float(m["ts"])):
         try:
-            respond(msg.get("text", "").strip(), channel, msg["ts"])
+            respond(msg.get("text", "").strip(), channel, msg["ts"],
+                    msg.get("_thread_ts"))
             print(f"chat: handled {msg['ts']}")
         except Exception as e:
             print(f"chat: error on {msg['ts']}: {e}")
