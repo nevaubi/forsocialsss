@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02T19:35:00-05:00",
+  "updated": "2026-08-03T07:30:00-05:00",
   "drafts": [
     {
       "id": "agent-security-incidents-20260802",
@@ -106,6 +106,81 @@
         {
           "version": "v3",
           "delivered_at": "2026-08-02T19:35:00-05:00",
+          "outcome": "awaiting reply"
+        }
+      ]
+    },
+    {
+      "id": "slop-cve-verification-20260803",
+      "slug": "slop-cve-verification",
+      "pillar": "P2",
+      "status": "delivered",
+      "angle_memo": {
+        "claim": "Fabricated vulnerability advisories acquired authoritative severity because nothing in the pipeline requires reproduction, and because the severity number is structured data that propagates while the 'Unreviewed' caveat is prose that does not. The buildable lesson for any pipeline ingesting outside claims: gate on reproduction, attach provenance to the number itself, and put review status where the machine reads.",
+        "evidence": [
+          {
+            "point": "JFrog audited a batch of SQLite advisories published by a single GitHub account and found 54 of 55 completely fabricated; the one remaining contained a real bug wrapped in unverified CVE metadata",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "CVE-2026-51302 (rated 9.8 Critical) claims a use-after-free reached via exprComputeOperands(), a function that did not exist in SQLite 3.41; it was added mid-2025",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "CVE-2026-51296 cites lines 3555 and 3575 of src/json.c; in 3.41.0 that file is 2706 lines long",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "CVE-2026-51303 claims a patch landed in 3.51.3, but the diff between 3.51.2 and 3.51.3 shows no changes to src/expr.c",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "Verification method: clone official sqlite/sqlite, check out the target tags, build in isolated Docker containers, run each advisory's PoC SQL under AddressSanitizer. The PoCs did not trigger any crash",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "NVD flagged these as critical and CISA's ADP agreed; Red Hat initially scored CVE-2026-51302 at 10.0 Critical and later downgraded it to 7.6 High",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "Root cause per JFrog: MITRE's public submission form lacks identity verification, NIST paused deep NVD analysis in February 2024 under a report surge, and no step in the pipeline requires a PoC or reproduction, so a plausible advisory reaches GHSA, downstream databases and enterprise scanners",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "JFrog's stated second-order risk: an AI agent doing automated triage may try to locate the vulnerable function, generate a patch, or recommend changes based on code that does not exist",
+            "url": "https://research.jfrog.com/post/sqlite-critical-cves-or-llm-slops/"
+          },
+          {
+            "point": "Live record state verified 2026-08-03: GHSA-vrg3-8p22-cwh8 for CVE-2026-51302 still reads Critical 9.8, is labeled Unreviewed, lists no package, and gives Affected versions Unknown and Patched versions Unknown. Published to the GitHub Advisory Database Jul 27 2026, last updated Jul 28 2026",
+            "url": "https://github.com/advisories/GHSA-vrg3-8p22-cwh8"
+          },
+          {
+            "point": "The same record carries an EPSS score of 0.529 percent (42nd percentile), an estimated probability of exploitation in the next 30 days, computed for a vulnerability that does not exist. Its references point at src/expr.c on master rather than the 3.41 tag it names",
+            "url": "https://github.com/advisories/GHSA-vrg3-8p22-cwh8"
+          },
+          {
+            "point": "SQLite's own vulnerability page states that the developers do not write CVEs, that a CVE about SQLite should not be assumed authoritative, that current processes for creating and managing CVEs are inadequate, and that grey-hat writers are rewarded by the number and severity of CVEs they write, producing a proliferation of exaggerated impact claims",
+            "url": "https://www.sqlite.org/cves.html"
+          }
+        ],
+        "why_now": "JFrog published the audit 2026-07-30 and it reached the Hacker News front page on the morning of 08-03 at 86 points, which is a second wave of attention rather than stale news. More importantly the claim is present tense: the advisory record still reads Critical 9.8 today, verified directly at GHSA this cycle. Saturation measured this cycle with an Apify relevance pull in the lane's own vocabulary ('slop CVE', past month, 15 posts): only 1 of 15 touched this story, a summary with no engineering read and 0 reactions, posted 08-03. An X pull for fabricated-CVE terms above 40 faves since 07-30 returned nothing, so neither platform is carrying it. Pillar note for the founder: classified P2 architecture rather than P3 news on purpose, because the post is a verification-design lesson carried by a live record, not a summary of last week's report. If he reads it as P3, the 24-48h freshness rule would have killed it.",
+        "why_firas": "profile.md documents automated ETL over tens of millions of externally sourced documents from ingestion and cleaning through vector storage, evaluation harnesses and AI observability, and structured logging with immutable audit trails and explainability at every tier. This is an ingestion-trust failure in exactly that shape. The post claims no vulnerability-management expertise and stays on the pipeline-design side of the line, which is his documented ground. Nothing client-specific, no legal advice, and the criticism targets institutions and public records with sourced evidence rather than any individual; the fabricating account is not named.",
+        "counterpoint": "Steelman: this is not an AI story. SQLite's own page has argued for years that CVE processes are inadequate and that writers are rewarded for exaggerated impact, so the incentive and the weak pipeline both predate LLMs; what changed is throughput, not kind. A vulnerability-management professional can fairly say the remedy is the one the field already knows (require a reproducible PoC, treat Unreviewed records as untriaged) and that this is a familiar complaint with a new adjective. The AI-authorship attribution is also the weakest link in JFrog's evidence, since it rests partly on a GPTZero detector result, while the objective part is only that the technical claims are false, and humans can write false advisories too. The draft concedes the old incentive explicitly and rests on the structural asymmetry instead: generation is nearly free, refutation still costs a build, and the severity field travels further than the caveat attached to it. Falsifiable version: if downstream consumers already gate on review status and require an affected-version range before opening a ticket, the post is unnecessary. The evidence that they do not is the record itself, propagated at 9.8 with affected and patched versions unknown.",
+        "artifact": "The live GHSA record for CVE-2026-51302: Critical 9.8, Unreviewed, no package listed, affected and patched versions both unknown, EPSS 0.529 percent, describing a use-after-free in a function that did not exist in the version named. Alongside it, one advisory in the same batch citing lines 3555 and 3575 of a 2706-line file, and 54 of 55 advisories fabricated."
+      },
+      "post_text": "A 9.8 Critical CVE cites a function that never existed.\n\nCVE-2026-51302 reports a use-after-free in SQLite 3.41, in exprComputeOperands.\n\nThat function was added to SQLite in mid-2025. It is not in 3.41.\n\nJFrog published its audit on July 30. Of 55 advisories from a single GitHub account, 54 were fabricated.\n\nDisproving them took a Docker container, the official source tags, and AddressSanitizer.\n\nThe proof-of-concept queries ran clean. One advisory cited lines 3555 and 3575 of json.c. That file is 2706 lines long.\n\nNow pull up the GitHub advisory today.\n\nStill Critical, 9.8. Labeled Unreviewed. No package listed. Affected versions unknown. Patched versions unknown.\n\nIt carries an EPSS score of 0.529 percent, an exploitation probability for a bug that is not there.\n\nMaximum severity, and not one field you would need to act on it.\n\nThe 9.8 is structured data, so it travels. Into GHSA, into aggregators, into scanners, into tickets.\n\n\"Unreviewed\" is prose for humans, so it stays put. The score outruns its own caveat.\n\nSQLite's maintainers have said for years that CVE processes are inadequate.\n\nWriters get rewarded for exaggerated impact. That incentive is old.\n\nWhat changed is the cost. 55 plausible advisories are nearly free to write. Refuting one still takes a build.\n\nFor any pipeline that ingests outside claims:\n\n- A claim with no reproduction path is a lead, not a fact.\n- Attach provenance to the number, not to a note beside it.\n- Make review status a field the machine reads, not prose.\n\nPoint an agent at a triage queue like this and it will patch a function that was never there.\n\nRed Hat dropped one of these from 10.0 to 7.6, and JFrog reported the batch upstream.\n\nSo the correction path works. It just runs at human speed, and the generation side no longer does.",
+      "format": "text",
+      "predicted": {
+        "band": "quiet",
+        "rationale": "Third post on a 42-follower account, so the cold-start floor dominates regardless of quality. The angle is genuinely unclaimed (1 of 15 on a relevance pull, 0 reactions) which means no competing reach but also no assembled audience for it."
+      },
+      "delivered_at": "2026-08-03T07:30:00-05:00",
+      "slack_ts": "1785760110.726019",
+      "resolution": null,
+      "revisions": [
+        {
+          "version": "v1",
+          "delivered_at": "2026-08-03T07:30:00-05:00",
           "outcome": "awaiting reply"
         }
       ]

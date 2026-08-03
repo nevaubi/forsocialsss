@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02T21:40:00-05:00",
+  "updated": "2026-08-03T07:30:00-05:00",
   "items": [
     {
       "slug": "openai-astra-multi-agent",
@@ -10,10 +10,10 @@
     },
     {
       "slug": "agent-memory-research",
-      "trigger": "escalate on the memory-as-trust-boundary angle: a documented memory-poisoning or persistent-context incident, a vendor shipping memory provenance or audit controls, or a lab follow-up on Metis. Generic 'agents need memory' framing is now saturated and is a kill, not an escalation",
+      "trigger": "escalate only on a primary artifact for memory as a write target: a documented memory-poisoning incident with the mechanism published, a vendor shipping memory provenance or audit controls, or a lab follow-up on Metis. The generic 'agents need memory' framing is a kill, and as of 08-03 the 'memory is a trust boundary' framing is also partly claimed, so restate the differentiator before drafting",
       "added": "2026-08-02T14:30:00-05:00",
       "expires": "2026-08-09T14:30:00-05:00",
-      "notes": "saturation 4 to 5 on a 15-post relevance pull (explainers at 824 likes, vendor launches); the open angle narrowed to memory as a write target that survives sessions"
+      "notes": "saturation 5 to 6 on a 15-post relevance pull 08-03. Near-neighbour angles now published (Askia 07-29 on what the agent does in memory after the escape, Agarwal 07-08 on agentic trust boundaries). Ruflo CVE-2026-59726 at CVSS 10.0 exposed persistent agent memory via an unauthenticated MCP bridge, which is trigger-adjacent but was not fired: no primary poisoning mechanism published, and a 10.0 in a named small project risks reading as a dunk"
     },
     {
       "slug": "agent-liability-insurance",
@@ -48,7 +48,14 @@
       "trigger": "escalate as the cycle's one delivery once the agent-security draft resolves, and only on the measured-design angle: METR's 43x gap between RE-Bench and HCAST reward hacking with the scoring function visible, the prompt table where telling the model to solve it as intended raised cheating to 95%, and the 44-incident finding that no agent effectively erased its logs. Kill it if any of three things happen: the post needs the Hugging Face incident to carry it, a large account publishes the METR numbers first, or the honest version reduces to 'graders are gameable', which six small accounts already posted between 07-07 and 08-01",
       "added": "2026-08-02T19:40:00-05:00",
       "expires": "2026-08-09T19:40:00-05:00",
-      "notes": "did not escalate 2026-08-02 21:20 CT despite qualifying on paper. Saturation corrected 3 to 6 on a relevance pull in the topic's own vocabulary, which fails the gate, and a draft on adjacent material was already sitting unanswered in Slack from 100 minutes earlier. Research is done and stored in the topic notes, so the next escalation costs no new spend"
+      "notes": "held for a second consecutive cycle 2026-08-03: saturation still 6 and still failing the gate, and slop-cve-verification measured 3 on the same instrument and took the delivery slot. Stored METR evidence remains valid so the draft still costs no new research spend. Firas was told in this cycle's brief that this one stays parked"
+    },
+    {
+      "slug": "slop-cve-verification",
+      "trigger": "this cycle's delivered draft. If Firas kills it, escalate again only on a stronger artifact: a maintainer or registry publishing a reproduction requirement, NVD or GHSA withdrawing the fabricated batch, or a documented case of an automated triage agent acting on a fabricated advisory. Kill the lane if a large security account publishes the same record-level read first, since the whole angle is that nobody had looked at the record fields",
+      "added": "2026-08-03T07:30:00-05:00",
+      "expires": "2026-08-10T07:30:00-05:00",
+      "notes": "delivered 08-03 07:30 CT at m7 s3 f9. Watch for the advisory being withdrawn, which would date the post's central present-tense claim"
     }
   ]
 }
