@@ -1,25 +1,144 @@
 {
-  "updated": "2026-08-02",
-  "note": "Seed list. status 'seed' means URL unverified: pulse resolves it via harvestapi/linkedin-profile-search, pins the canonical linkedinUrl, and sets status 'active', or marks 'unresolvable' after 2 failed attempts. Retro prunes persistent low-signal entries and may add up to 2 per week (Tier A write).",
-  "rotation_cursor": 0,
+  "updated": "2026-08-03",
+  "note": "Seed list. status 'seed' means URL unverified. Resolution note 2026-08-03: harvestapi/linkedin-profile-search rejects small runs with max-total-charge-usd-below-minimum, a $0.10 floor per run, which makes actor-based resolution cost $0.10 per creator. Resolve URLs with the built-in web tools instead (all five resolved this way on 2026-08-03, each confirmed against the person's own site or profile page) and reserve the actor for names the open web cannot resolve. Retro prunes persistent low-signal entries and may add up to 2 per week (Tier A write).",
+  "rotation_cursor": 7,
   "tracked": [
-    {"name": "Ethan Mollick", "lane": "ai-adoption", "why": "Wharton professor, highest-signal practical AI adoption analysis", "linkedin": "https://www.linkedin.com/in/emollick/", "status": "active"},
-    {"name": "Andrew Ng", "lane": "ai-engineering", "why": "DeepLearning.AI and AI Fund, engineering-first framing, large reach", "linkedin": "https://www.linkedin.com/in/andrewyng/", "status": "active"},
-    {"name": "Allie K. Miller", "lane": "ai-business", "why": "AI business adoption, strong LinkedIn-native formats", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Cassie Kozyrkov", "lane": "ai-decision", "why": "Decision intelligence, former Google chief decision scientist", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Andriy Burkov", "lane": "ml-engineering", "why": "ML author, no-hype technical takes", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Zain Kahn", "lane": "ai-mass-market", "why": "Mass-market AI content patterns; style intelligence more than substance", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Ruben Hassid", "lane": "linkedin-craft", "why": "LinkedIn-native AI creator; hook and format intelligence", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Harrison Chase", "lane": "agent-tooling", "why": "LangChain founder, agent infrastructure signal", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Jerry Liu", "lane": "agent-tooling", "why": "LlamaIndex founder, RAG and agents signal", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Shawn Wang", "lane": "ai-engineering", "why": "swyx, AI engineering discourse, Latent Space", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Bob Ambrogi", "lane": "legal-tech", "why": "LawSites, canonical legal tech journalism", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Richard Tromans", "lane": "legal-tech", "why": "Artificial Lawyer, legal AI market analysis", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Damien Riehl", "lane": "legal-tech", "why": "vLex, technical legal AI voice, very active on LinkedIn", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Cat Casey", "lane": "legal-tech", "why": "Legal tech evangelism, high-engagement formats", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Jack Newton", "lane": "legal-tech", "why": "Clio CEO, legal industry platform view", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Simon Taylor", "lane": "fintech", "why": "Fintech Brainfood, fintech infrastructure analysis", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Linas Beliunas", "lane": "fintech", "why": "High-volume fintech commentary, format intelligence", "linkedin": null, "status": "seed", "resolve": true},
-    {"name": "Nik Milanovic", "lane": "fintech", "why": "This Week in Fintech", "linkedin": null, "status": "seed", "resolve": true}
+    {
+      "name": "Ethan Mollick",
+      "lane": "ai-adoption",
+      "why": "Wharton professor, highest-signal practical AI adoption analysis",
+      "linkedin": "https://www.linkedin.com/in/emollick/",
+      "status": "active"
+    },
+    {
+      "name": "Andrew Ng",
+      "lane": "ai-engineering",
+      "why": "DeepLearning.AI and AI Fund, engineering-first framing, large reach",
+      "linkedin": "https://www.linkedin.com/in/andrewyng/",
+      "status": "active"
+    },
+    {
+      "name": "Allie K. Miller",
+      "lane": "ai-business",
+      "why": "AI business adoption, strong LinkedIn-native formats",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Cassie Kozyrkov",
+      "lane": "ai-decision",
+      "why": "Decision intelligence, former Google chief decision scientist",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Andriy Burkov",
+      "lane": "ml-engineering",
+      "why": "ML author, no-hype technical takes",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Zain Kahn",
+      "lane": "ai-mass-market",
+      "why": "Mass-market AI content patterns; style intelligence more than substance",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Ruben Hassid",
+      "lane": "linkedin-craft",
+      "why": "LinkedIn-native AI creator; hook and format intelligence",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Harrison Chase",
+      "lane": "agent-tooling",
+      "why": "LangChain founder, agent infrastructure signal",
+      "linkedin": "https://www.linkedin.com/in/harrison-chase-961287118",
+      "status": "active"
+    },
+    {
+      "name": "Jerry Liu",
+      "lane": "agent-tooling",
+      "why": "LlamaIndex founder, RAG and agents signal",
+      "linkedin": "https://www.linkedin.com/in/jerry-liu-64390071",
+      "status": "active"
+    },
+    {
+      "name": "Shawn Wang",
+      "lane": "ai-engineering",
+      "why": "swyx, AI engineering discourse, Latent Space",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Bob Ambrogi",
+      "lane": "legal-tech",
+      "why": "LawSites, canonical legal tech journalism",
+      "linkedin": "https://www.linkedin.com/in/robertambrogi",
+      "status": "active"
+    },
+    {
+      "name": "Richard Tromans",
+      "lane": "legal-tech",
+      "why": "Artificial Lawyer, legal AI market analysis",
+      "linkedin": "https://www.linkedin.com/in/artificiallawyer",
+      "status": "active"
+    },
+    {
+      "name": "Damien Riehl",
+      "lane": "legal-tech",
+      "why": "vLex, technical legal AI voice, very active on LinkedIn",
+      "linkedin": "https://www.linkedin.com/in/damienriehl",
+      "status": "active"
+    },
+    {
+      "name": "Cat Casey",
+      "lane": "legal-tech",
+      "why": "Legal tech evangelism, high-engagement formats",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Jack Newton",
+      "lane": "legal-tech",
+      "why": "Clio CEO, legal industry platform view",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Simon Taylor",
+      "lane": "fintech",
+      "why": "Fintech Brainfood, fintech infrastructure analysis",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Linas Beliunas",
+      "lane": "fintech",
+      "why": "High-volume fintech commentary, format intelligence",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    },
+    {
+      "name": "Nik Milanovic",
+      "lane": "fintech",
+      "why": "This Week in Fintech",
+      "linkedin": null,
+      "status": "seed",
+      "resolve": true
+    }
   ]
 }
