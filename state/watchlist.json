@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-03T11:18:00-05:00",
+  "updated": "2026-08-03T13:45:00-05:00",
   "items": [
     {
       "slug": "openai-astra-multi-agent",
@@ -55,7 +55,7 @@
       "trigger": "this cycle's delivered draft. If Firas kills it, escalate again only on a stronger artifact: a maintainer or registry publishing a reproduction requirement, NVD or GHSA withdrawing the fabricated batch, or a documented case of an automated triage agent acting on a fabricated advisory. Kill the lane if a large security account publishes the same record-level read first, since the whole angle is that nobody had looked at the record fields",
       "added": "2026-08-03T07:30:00-05:00",
       "expires": "2026-08-10T07:30:00-05:00",
-      "notes": "delivered 08-03 07:30 CT at m7 s3 f9. Watch for the advisory being withdrawn, which would date the post's central present-tense claim | 2026-08-03 09:40: record re-verified unchanged at GHSA (Critical 9.8, Unreviewed, versions unknown, EPSS 0.529 percent, last updated Jul 28), so the draft's present-tense claim holds for a Tuesday window. HN climbed 86 to 340 points with no competing record-level read, so the kill criterion has not fired."
+      "notes": "delivered 08-03 07:30 CT at m7 s3 f9. Watch for the advisory being withdrawn, which would date the post's central present-tense claim | 2026-08-03 09:40: record re-verified unchanged at GHSA (Critical 9.8, Unreviewed, versions unknown, EPSS 0.529 percent, last updated Jul 28), so the draft's present-tense claim holds for a Tuesday window. HN climbed 86 to 340 points with no competing record-level read, so the kill criterion has not fired. | 2026-08-03 13:45: draft killed by the queue-clearing directive rather than on the merits, so treat the trigger's kill branch as unfired. HN at 644 points and still no competing record-level read. The record-level argument has now been published inside the sanctions report as its non-legal section, which lowers the value of a standalone repeat."
     },
     {
       "slug": "qwen38-max-open-weights",
@@ -76,7 +76,14 @@
       "trigger": "this cycle's delivered draft, founder-directed. The follow-up post is already identified and needs no new research: the pro se inversion (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) and what it does to verification load, since it moves the burden from checking your own citations to checking inbound documents from parties with no verification process at all. Escalate that only after this draft resolves, and re-measure saturation in that sub-lane's own vocabulary first, because Law.com covered the pro se surge on 07-14. Kill the lane if a large account publishes the attribution or tool-provenance read before Firas posts",
       "added": "2026-08-03T11:18:00-05:00",
       "expires": "2026-08-10T11:18:00-05:00",
-      "notes": "saturation measured 7 on a 15-post relevance pull, correcting the assistant's unmeasured 4. Two of my three candidate angles were already published (Brinsa 07-21 organizational negligence, Boyer 08-03 00:31 failure taxonomy), which is why the delivered draft leads on attribution instead. The database is updated daily, so the 1,822 figure ages: re-read the primary page before any redelivery and expect the number to have moved"
+      "notes": "saturation measured 7 on a 15-post relevance pull, correcting the assistant's unmeasured 4. Two of my three candidate angles were already published (Brinsa 07-21 organizational negligence, Boyer 08-03 00:31 failure taxonomy), which is why the delivered draft leads on attribution instead. The database is updated daily, so the 1,822 figure ages: re-read the primary page before any redelivery and expect the number to have moved | 2026-08-03 13:45: the founder-directed 5-page PDF report shipped as a document post on this topic, so the text draft delivered at 11:18 is killed and superseded. The full CSV is now parsed and its aggregates are banked in topics.json, so the pro se follow-up post needs no new data pull, only a saturation measurement in its own vocabulary. Re-read the database before any redelivery: the total moves daily and the report states 1,822 as of the 1 August update."
+    },
+    {
+      "slug": "legal-ai-sanctions-report-followup",
+      "trigger": "escalate the pro se inversion post (1,065 unrepresented parties against 710 lawyers, plus the 26-judge row) only after the report resolves, and only after measuring saturation in that sub-lane's own vocabulary. Kill it if the report itself already carried the point in Firas's comments, or if a large account publishes the inbound-verification read first",
+      "added": "2026-08-03T13:45:00-05:00",
+      "expires": "2026-08-10T13:45:00-05:00",
+      "notes": "research is done and banked in topics.json; the angle is that verification load moves from checking your own citations to checking inbound documents from parties with no verification process"
     }
   ]
 }

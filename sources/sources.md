@@ -52,6 +52,11 @@ POST https://api.tavily.com/search with the TAVILY_API_KEY environment variable 
 
 Sandbox egress is limited to the allowlist in deploy/deploy.py: api.apify.com, api.tavily.com, slack.com, github.com and githubusercontent, hn.algolia.com, export.arxiv.org, api.fireworks.ai. Press sites, vendor blogs, and everything else on this page are read through the built-in web_fetch and web_search tools, which are governed separately from sandbox networking.
 
+## Observed runtime notes (2026-08-03)
+
+- Datasets behind the egress allowlist: a host that is not in deploy/deploy.py returns a proxy 403 to curl, and a large file read through a fetch tool lands in the context window. Route it through the allowlisted Tavily extract endpoint (POST https://api.tavily.com/extract) with the response written to a file, then aggregate in the sandbox and read only totals. Validated on the 1.75 MB AI Hallucination Cases CSV, which never entered context. Tavily's extractor strips newlines, so CSV records need re-anchoring on a stable field before parsing.
+- Slack file delivery is not possible from the sandbox: files.getUploadURLExternal returns an upload URL on files.slack.com, which is not allowlisted, and the legacy files.upload endpoint returns method_deprecated. Until files.slack.com is added to the allowlist, document deliverables get committed to outbox/ and named in the Slack brief, with the assistant offered as the uploader.
+
 ## Source hygiene
 
 - Primary sources outrank coverage. A claim sourced only to a growth blog or an X thread is a prior, not a fact.
