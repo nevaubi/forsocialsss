@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
 """Assistant agent for the forsocialsss system.
 
-Kimi K3 on the Fireworks serverless endpoint, talking to Firas over the
-Slack bot DM. No command syntax: every message goes through a router that
-decides whether Firas is asking a question, instructing a change, undoing
-one, or explicitly requesting a pull request.
+Kimi K3 on Fireworks, running a real agent loop over the repository. No
+command syntax: Firas talks in plain language and the agent decides whether
+to answer, research, or act. For actions it works like an engineer: read the
+file, make an exact-match edit, verify, review the diff, commit, report the
+commit link. Web research runs through Tavily and direct fetches.
 
-- answer: grounded reply from full system state, read-only.
-- change: Kimi rewrites the target files completely, the assistant commits
-  straight to main and reports the commit. The heartbeat pulls main every
-  cycle, so changes take effect on its next fire.
-- revert: the most recent assistant commit on main is reverted.
-- pr: only when Firas explicitly asks for a pull request, the apply
-  workflow packages the change for review instead of pushing.
+Structural safety lives in the tools, not the prompt: path traversal is
+blocked, the hard rules section of CLAUDE.md cannot be removed, em dashes
+cannot be committed, edits that gut a file are held until Firas confirms,
+and the shell tool runs with all credentials scrubbed from its environment.
 
-Safety is structural, not ceremonial: path traversal is blocked, the hard
-rules section of CLAUDE.md cannot be silently removed, and any edit that
-would gut most of a file is held until Firas confirms.
-
-Modes (argv[1]): chat (poller), apply (PR workflow).
-Env: FIREWORKS_API_KEY, SLACK_BOT_TOKEN, GH_STATE_TOKEN (direct pushes),
-     GITHUB_TOKEN (apply dispatch and PR creation), ANTHROPIC_API_KEY
-     (optional, live status), FIREWORKS_MODEL, ASSISTANT_MAX_TOKENS.
+Modes (argv[1]): chat (fallback poller), apply (PR workflow).
+Env: FIREWORKS_API_KEY, SLACK_BOT_TOKEN, GH_STATE_TOKEN, GITHUB_TOKEN,
+     TAVILY_API_KEY (web research), ANTHROPIC_API_KEY (live status),
+     FIREWORKS_MODEL, ASSISTANT_MAX_TOKENS.
 """
 
+import datetime
 import json
 import os
 import re
@@ -44,45 +39,42 @@ REPO = "nevaubi/forsocialsss"
 HANDLED_REACTION = "robot_face"
 DEPLOYMENT_NAME = "linkedin-heartbeat"
 ASSISTANT_AUTHOR = "assistant@forsocialsss"
+MAX_LOOP = 20
 
 HEARTBEAT_EXACT = {"approve", "hold", "status", "retro now"}
 HEARTBEAT_PREFIX = ("edit:", "kill:", "posted ")
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-ROUTER_SYSTEM = """You are Firas Shaher's operations assistant for his autonomous LinkedIn content agent system. You are a separate model (Kimi K3) from the heartbeat agent that does the content work. You keep Firas informed and, when he instructs it, you change the system directly.
+AGENT_SYSTEM = """You are Firas Shaher's operations agent for his autonomous LinkedIn content system. You are a separate model (Kimi K3) from the heartbeat agent that does the content work. You keep Firas informed and, when he instructs it, you change the system yourself using your tools.
 
-Voice: terse, grounded, direct. No em dashes ever. No hype, no exclamation points, no emoji unless he uses them first.
+Voice: terse, grounded, direct. No em dashes ever, anywhere, including in files you write. No hype, no exclamation points, no emoji unless he uses them first.
 
-You will receive the current system state and Firas's message. Respond with ONLY a JSON object, no markdown fences, in one of these shapes:
+Deciding what to do:
+- Questions get answers, grounded in the state snapshot and whatever you read or research. Questions are never actions. "What would happen if" is a question.
+- Clear instructions to change the system get executed. When an instruction is too ambiguous to execute safely, ask one short clarifying question instead of guessing.
+- "Revert" or "undo" means revert_last.
+- Only when he explicitly asks for a pull request, use request_pr instead of committing directly.
+- Heartbeat draft directives (approve, edit:, kill:, hold, status, posted, retro now) are not yours; if he seems to want the heartbeat, say so.
 
-1. He is asking a question, chatting, or his instruction is too ambiguous to execute safely:
-{"mode": "answer", "reply": "<your grounded answer, or one clarifying question>"}
+How to make changes, in order:
+1. read_file everything you are about to touch. Never edit from memory of the snapshot.
+2. Prefer edit_file with an exact unique match for existing files; write_file only for new files or genuine full rewrites.
+3. Verify: after editing Python run "python3 -m py_compile <file>", after YAML run a python yaml.safe_load check, with the run tool.
+4. git_diff and read it critically. If the diff is not exactly what the instruction asked, fix it before committing.
+5. commit_and_push with message "assistant: <what changed>". The tool enforces safety guards and returns the commit link.
+6. Your final reply states what changed, the commit link, and that the heartbeat picks it up next cycle. If you changed deploy config or the heartbeat model or schedule, note that it needs a Deploy Agent workflow run with recreate=true to take effect.
 
-2. He is clearly instructing you to change the system (settings, strategy, weights, sources, playbook, prompts, drafts, any repo file):
-{"mode": "change", "summary": "<one line describing the change>", "reply": "<one or two lines telling him what you changed>", "files": [{"path": "<repo-relative path>", "content": "<COMPLETE new file content>"}]}
+Research: web_search for current information, fetch_url to read a specific page. Use them whenever the answer depends on anything outside this repository or your training data, and say what you found rather than guessing.
 
-3. He is asking to undo, revert, or roll back the last change you made:
-{"mode": "revert", "reply": "<one line confirming the revert>"}
+Memory: when Firas states a durable preference, standing instruction, or decision, call remember with a one-line note. Sparingly, durable facts only.
 
-4. He explicitly asks for a pull request or says he wants to review before it lands:
-{"mode": "pr", "reply": "<one line saying the PR is being prepared>"}
-
-Any of the four shapes may additionally carry "remember": ["<one-line durable fact>"] when Firas states something worth keeping across conversations: a preference, a standing instruction, a decision, or context about why a setting is what it is. Be sparing; remember durable facts only, never small talk, never transient state the repo already tracks. These lines are appended to state/assistant-memory.md, which you receive in every future exchange.
-
-Rules for change mode:
-- Every file must contain its COMPLETE new content. Unchanged files are omitted.
-- Touch the minimum set of files that fulfills the instruction.
-- Respect the repository's own rules in CLAUDE.md: no em dashes anywhere, no fabricated data. The hard rules section of CLAUDE.md may only be edited when Firas explicitly names the hard rule he wants changed.
-- Questions are never changes. "What would happen if" is a question. "Change it" is a change. When genuinely unsure, use answer mode and ask one short clarifying question.
-- If he asks you to improve a queued LinkedIn draft, edit state/queue.json directly, keeping its schema, and note in your reply that the heartbeat's edit: directive is the alternative that reruns his full voice pipeline.
-
-Ground every answer in the provided state. If the state does not contain the answer, say so plainly. Never reveal or speculate about credentials."""
+Never print, request, or attempt to read credentials; your shell runs with them scrubbed. When anything fails, say exactly what failed rather than papering over it. When repository instructions and convenience conflict, the repository wins."""
 
 
 # ---------------------------------------------------------------- plumbing
 
-def http(url, method="GET", body=None, headers=None, form=False):
+def http(url, method="GET", body=None, headers=None, form=False, timeout=120):
     if form and body is not None:
         data = urllib.parse.urlencode(body).encode()
     elif body is not None:
@@ -95,7 +87,7 @@ def http(url, method="GET", body=None, headers=None, form=False):
     if data is not None and not form:
         req.add_header("content-type", "application/json")
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read().decode()
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
@@ -110,20 +102,6 @@ def slack(method, body):
     if not resp.get("ok"):
         raise RuntimeError(f"slack {method}: {resp.get('error')}")
     return resp
-
-
-def kimi(system, messages, max_tokens=None):
-    body = {
-        "model": os.environ.get("FIREWORKS_MODEL",
-                                "accounts/fireworks/models/kimi-k3"),
-        "max_tokens": max_tokens or int(os.environ.get("ASSISTANT_MAX_TOKENS",
-                                                       "16000")),
-        "temperature": 0.3,
-        "messages": [{"role": "system", "content": system}] + messages,
-    }
-    resp = http(FIREWORKS_URL, "POST", body,
-                {"Authorization": f"Bearer {os.environ['FIREWORKS_API_KEY'].strip()}"})
-    return resp["choices"][0]["message"]["content"]
 
 
 def git(*args, check=True):
@@ -150,21 +128,39 @@ def push_main():
     raise RuntimeError(f"push failed after rebase retry: {r.stderr.strip()[:300]}")
 
 
+def sync_to_main():
+    """Reset the working tree to current origin/main so every exchange
+    starts from the latest pushed state, discarding any leftovers."""
+    try:
+        git("fetch", "origin", "main")
+        git("reset", "--hard", "FETCH_HEAD")
+        git("clean", "-fd")
+    except Exception as e:
+        print(f"sync: {e}")
+
+
+def safe_path(rel):
+    path = os.path.normpath(rel).replace("\\", "/")
+    if path.startswith("..") or os.path.isabs(path) or path.startswith(".git/"):
+        raise RuntimeError(f"unsafe path: {rel}")
+    return path
+
+
 # ------------------------------------------------------------ read context
 
-def read_file(rel, max_chars=6000):
+def read_repo(rel, max_chars=6000):
     path = os.path.join(REPO_ROOT, rel)
     if not os.path.exists(path):
         return f"(missing: {rel})"
     with open(path, "r", encoding="utf-8", errors="replace") as f:
         text = f.read()
     if len(text) > max_chars:
-        return text[:max_chars] + f"\n...(truncated, {len(text)} chars total)"
+        return text[:max_chars] + f"\n...(truncated, {len(text)} chars total; read_file for the rest)"
     return text
 
 
-def tail_file(rel, lines):
-    text = read_file(rel, max_chars=200000)
+def tail_repo(rel, lines):
+    text = read_repo(rel, max_chars=400000)
     return "\n".join(text.splitlines()[-lines:])
 
 
@@ -200,25 +196,23 @@ def deployment_status():
         return f"(deployment status error: {e})"
 
 
-def build_context():
+def build_snapshot():
     parts = [
         ("Assistant memory (durable notes from Firas)",
-         read_file("state/assistant-memory.md", 6000)),
-        ("Constitution (CLAUDE.md)", read_file("CLAUDE.md", 20000)),
-        ("Strategy", read_file("identity/strategy.md", 8000)),
-        ("Voice rules", read_file("identity/voice.md", 8000)),
-        ("Topic board", read_file("state/topics.json", 8000)),
-        ("Watchlist", read_file("state/watchlist.json", 3000)),
-        ("Draft queue", read_file("state/queue.json", 10000)),
-        ("Posted history", read_file("state/posted.json", 3000)),
-        ("Sources and budgets", read_file("sources/sources.md", 8000)),
-        ("Run log, last 20 lines", tail_file("state/run-log.jsonl", 20)),
-        ("Lessons, tail", tail_file("state/lessons.md", 60)),
+         read_repo("state/assistant-memory.md", 6000)),
+        ("Constitution (CLAUDE.md)", read_repo("CLAUDE.md", 14000)),
+        ("Topic board", read_repo("state/topics.json", 4000)),
+        ("Watchlist", read_repo("state/watchlist.json", 1500)),
+        ("Draft queue", read_repo("state/queue.json", 6000)),
+        ("Posted history", read_repo("state/posted.json", 1500)),
+        ("Run log, last 15 lines", tail_repo("state/run-log.jsonl", 15)),
+        ("Lessons, tail", tail_repo("state/lessons.md", 30)),
         ("Recent commits", git("log", "--oneline", "-12")),
         ("Live deployment status", deployment_status()),
-        ("Repository file listing", git("ls-files")),
+        ("Repository file listing (read_file for any of these)",
+         git("ls-files")),
     ]
-    return "\n\n".join(f"## {title}\n{body}" for title, body in parts)
+    return "\n\n".join(f"## {t}\n{b}" for t, b in parts)
 
 
 def is_heartbeat_directive(text):
@@ -248,9 +242,6 @@ def dm_channel():
 
 
 def recent_conversation(channel, thread_ts=None, limit=30):
-    """Top-level DM history, merged with the active thread's replies when
-    the message being answered lives inside one, chronological, capped by
-    total size so long sessions do not blow the prompt up."""
     msgs = []
     try:
         resp = slack("conversations.history", {"channel": channel,
@@ -276,8 +267,7 @@ def recent_conversation(channel, thread_ts=None, limit=30):
             continue
         role = "user" if m.get("user") == FIRAS_ID else "assistant"
         convo.append({"role": role, "content": text[:2000]})
-    total = 0
-    kept = []
+    total, kept = 0, []
     for m in reversed(convo):
         total += len(m["content"])
         if total > 24000:
@@ -286,150 +276,358 @@ def recent_conversation(channel, thread_ts=None, limit=30):
     return list(reversed(kept))
 
 
-# --------------------------------------------------------------- executing
+# ------------------------------------------------------------------- tools
 
-def parse_plan(raw):
-    raw = raw.strip()
-    raw = re.sub(r"^```(json)?\s*|\s*```$", "", raw, flags=re.M).strip()
+TOOLS = [
+    {"type": "function", "function": {
+        "name": "read_file",
+        "description": "Read a repository file in full.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string", "description": "repo-relative path"}},
+            "required": ["path"]}}},
+    {"type": "function", "function": {
+        "name": "list_files",
+        "description": "List all tracked files in the repository.",
+        "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "edit_file",
+        "description": "Replace one exact occurrence of old_str with new_str "
+                       "in a file. old_str must match exactly once; include "
+                       "enough surrounding context to make it unique.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string"},
+            "old_str": {"type": "string"},
+            "new_str": {"type": "string"}},
+            "required": ["path", "old_str", "new_str"]}}},
+    {"type": "function", "function": {
+        "name": "write_file",
+        "description": "Create a new file or fully overwrite an existing one "
+                       "with complete content. Prefer edit_file for edits.",
+        "parameters": {"type": "object", "properties": {
+            "path": {"type": "string"},
+            "content": {"type": "string"}},
+            "required": ["path", "content"]}}},
+    {"type": "function", "function": {
+        "name": "run",
+        "description": "Run a shell command in the repository root, 60s "
+                       "timeout, credentials scrubbed from the environment. "
+                       "For verification: py_compile, yaml checks, grep, git "
+                       "log. Not for pushing; use commit_and_push.",
+        "parameters": {"type": "object", "properties": {
+            "command": {"type": "string"}},
+            "required": ["command"]}}},
+    {"type": "function", "function": {
+        "name": "git_diff",
+        "description": "Show uncommitted changes: status plus full diff. "
+                       "Review before every commit.",
+        "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "commit_and_push",
+        "description": "Commit all working tree changes as the assistant and "
+                       "push straight to main. Returns the commit link. "
+                       "Safety guards may hold the commit and tell you why.",
+        "parameters": {"type": "object", "properties": {
+            "message": {"type": "string",
+                        "description": "commit message, no assistant: prefix "
+                                       "needed, it is added"}},
+            "required": ["message"]}}},
+    {"type": "function", "function": {
+        "name": "revert_last",
+        "description": "Revert the most recent assistant commit on main.",
+        "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "web_search",
+        "description": "Search the web (Tavily). Returns an answer synthesis "
+                       "and the top results with snippets.",
+        "parameters": {"type": "object", "properties": {
+            "query": {"type": "string"}},
+            "required": ["query"]}}},
+    {"type": "function", "function": {
+        "name": "fetch_url",
+        "description": "Fetch a URL and return its text content, tags "
+                       "stripped, capped.",
+        "parameters": {"type": "object", "properties": {
+            "url": {"type": "string"}},
+            "required": ["url"]}}},
+    {"type": "function", "function": {
+        "name": "remember",
+        "description": "Persist a one-line durable note from Firas to "
+                       "state/assistant-memory.md.",
+        "parameters": {"type": "object", "properties": {
+            "note": {"type": "string"}},
+            "required": ["note"]}}},
+    {"type": "function", "function": {
+        "name": "request_pr",
+        "description": "Only when Firas explicitly asks for a pull request: "
+                       "dispatch the reviewed-change workflow instead of "
+                       "committing directly.",
+        "parameters": {"type": "object", "properties": {
+            "instruction": {"type": "string"}},
+            "required": ["instruction"]}}},
+]
+
+
+def tool_read_file(args, ctx):
+    path = safe_path(args["path"])
+    full = os.path.join(REPO_ROOT, path)
+    if not os.path.exists(full):
+        return f"error: {path} does not exist"
+    with open(full, "r", encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    if len(text) > 60000:
+        return text[:60000] + f"\n...(truncated at 60000 of {len(text)} chars)"
+    return text
+
+
+def tool_list_files(args, ctx):
+    return git("ls-files")
+
+
+def tool_edit_file(args, ctx):
+    path = safe_path(args["path"])
+    full = os.path.join(REPO_ROOT, path)
+    if not os.path.exists(full):
+        return f"error: {path} does not exist; use write_file to create it"
+    with open(full, "r", encoding="utf-8") as f:
+        text = f.read()
+    count = text.count(args["old_str"])
+    if count == 0:
+        return "error: old_str not found; read_file again and match exactly"
+    if count > 1:
+        return f"error: old_str matches {count} times; add surrounding context"
+    with open(full, "w", encoding="utf-8") as f:
+        f.write(text.replace(args["old_str"], args["new_str"], 1))
+    return f"edited {path}"
+
+
+def tool_write_file(args, ctx):
+    path = safe_path(args["path"])
+    full = os.path.join(REPO_ROOT, path)
+    os.makedirs(os.path.dirname(full) or REPO_ROOT, exist_ok=True)
+    with open(full, "w", encoding="utf-8") as f:
+        f.write(args["content"])
+    return f"wrote {path} ({len(args['content'])} chars)"
+
+
+SCRUB = ("TOKEN", "KEY", "SECRET", "PASSWORD", "CREDENTIAL")
+
+
+def tool_run(args, ctx):
+    env = {k: v for k, v in os.environ.items()
+           if not any(s in k.upper() for s in SCRUB)}
+    env["HOME"] = os.environ.get("HOME", "/tmp")
     try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        # The model answered in prose; treat it as a plain answer.
-        return {"mode": "answer", "reply": raw[:3000]}
+        r = subprocess.run(["bash", "-c", args["command"]], cwd=REPO_ROOT,
+                           capture_output=True, text=True, timeout=60,
+                           env=env)
+        out = (r.stdout + ("\n" + r.stderr if r.stderr else "")).strip()
+        return f"exit {r.returncode}\n{out[:8000]}"
+    except subprocess.TimeoutExpired:
+        return "error: command timed out at 60s"
 
 
-def guard_change(plan, user_text):
-    """Structural safety checks. Returns None when clear, or a message when
-    the change is held for confirmation."""
-    confirming = "confirm" in user_text.lower()
-    for f in plan.get("files", []):
-        path = os.path.normpath(f.get("path", ""))
-        if path.startswith("..") or os.path.isabs(path):
-            return f"That change touches an unsafe path ({f.get('path')}), refused."
+def tool_git_diff(args, ctx):
+    status = git("status", "--short")
+    diff = git("diff")
+    out = f"STATUS:\n{status or '(clean)'}\n\nDIFF:\n{diff or '(no changes)'}"
+    return out[:20000]
+
+
+def tool_commit_and_push(args, ctx):
+    changed = [p for p in git("status", "--porcelain").splitlines()]
+    if not changed:
+        return "error: nothing to commit"
+    confirming = "confirm" in ctx["user_text"].lower()
+    for line in changed:
+        path = line[3:].strip().strip('"')
         full = os.path.join(REPO_ROOT, path)
-        new = f.get("content", "")
+        if not os.path.isfile(full):
+            continue
+        with open(full, "r", encoding="utf-8", errors="replace") as f:
+            new = f.read()
+        if "\u2014" in json.dumps(new):
+            return (f"held: {path} contains an em dash, which CLAUDE.md bans "
+                    f"repo-wide. Replace it and commit again.")
         if path == "CLAUDE.md" and "## Hard rules" not in new:
-            return ("That edit would remove the hard rules section of "
-                    "CLAUDE.md, refused. Name the specific hard rule you "
-                    "want changed and I will edit just that.")
-        if os.path.exists(full) and not confirming:
-            old_size = os.path.getsize(full)
-            if old_size > 2000 and len(new.encode()) < old_size * 0.3:
-                return (f"That would shrink {path} by more than 70 percent, "
-                        f"which usually means lost content. If that is "
-                        f"really what you want, resend with the word "
-                        f"confirm in the message.")
-    return None
-
-
-def execute_change(plan):
-    for f in plan["files"]:
-        path = os.path.normpath(f["path"])
-        full = os.path.join(REPO_ROOT, path)
-        os.makedirs(os.path.dirname(full) or REPO_ROOT, exist_ok=True)
-        with open(full, "w", encoding="utf-8") as fh:
-            fh.write(f["content"])
-        git("add", path)
+            return ("held: this would remove the hard rules section of "
+                    "CLAUDE.md. Refused; edit the specific rule instead.")
+        try:
+            old = git("show", f"HEAD:{path}", check=True)
+        except RuntimeError:
+            old = None
+        if (old is not None and not confirming and len(old) > 2000
+                and len(new) < len(old) * 0.3):
+            return (f"held: this shrinks {path} by more than 70 percent, "
+                    f"which usually means lost content. Tell Firas; he can "
+                    f"resend with the word confirm to proceed.")
+    git("add", "-A")
+    msg = args["message"].strip()
+    if not msg.startswith("assistant:"):
+        msg = f"assistant: {msg}"
     git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
-        "commit", "-m", f"assistant: {plan.get('summary', 'change')}"[:120])
+        "commit", "-m", msg[:140])
     push_main()
     sha = git("rev-parse", "--short", "HEAD")
-    files = ", ".join(f["path"] for f in plan["files"])
-    return (f"Done. {plan.get('summary', 'Changed')} ({files}).\n"
-            f"Commit {sha}: https://github.com/{REPO}/commit/{sha}\n"
-            f"The heartbeat picks this up on its next cycle. Say revert if "
-            f"it is wrong.")
+    ctx["committed"] = sha
+    return f"committed and pushed {sha}: https://github.com/{REPO}/commit/{sha}"
 
 
-def execute_revert():
-    log = git("log", "--format=%H %ae %s", "-20", "main")
+def tool_revert_last(args, ctx):
+    log = git("log", "--format=%H %ae %s", "-20", "HEAD")
     target = None
     for line in log.splitlines():
         sha, email, *msg = line.split(" ", 2)
-        if email == ASSISTANT_AUTHOR and not " ".join(msg).startswith(
-                "Revert"):
-            target = (sha, " ".join(msg))
+        m = " ".join(msg)
+        if email == ASSISTANT_AUTHOR and not m.startswith("Revert"):
+            target = (sha, m)
             break
     if not target:
-        return "Nothing to revert: no recent assistant commit found on main."
+        return "error: no recent assistant commit found to revert"
     git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
         "revert", "--no-edit", target[0])
     push_main()
     sha = git("rev-parse", "--short", "HEAD")
-    return (f"Reverted: {target[1]}\n"
-            f"Commit {sha}: https://github.com/{REPO}/commit/{sha}")
+    return (f"reverted '{target[1]}' in {sha}: "
+            f"https://github.com/{REPO}/commit/{sha}")
 
 
-def dispatch_apply(instruction, channel):
+def tool_web_search(args, ctx):
+    key = os.environ.get("TAVILY_API_KEY", "").strip()
+    if not key:
+        return "error: TAVILY_API_KEY not available in this runtime"
+    resp = http("https://api.tavily.com/search", "POST", {
+        "api_key": key, "query": args["query"], "max_results": 5,
+        "include_answer": True,
+    })
+    out = [f"answer: {resp.get('answer', '(none)')}"]
+    for r in resp.get("results", []):
+        out.append(f"- {r.get('title')} | {r.get('url')}\n  {str(r.get('content'))[:500]}")
+    return "\n".join(out)[:10000]
+
+
+def tool_fetch_url(args, ctx):
+    req = urllib.request.Request(args["url"], headers={
+        "User-Agent": "Mozilla/5.0 (forsocialsss-assistant)"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        raw = resp.read(600000).decode(errors="replace")
+    text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", raw,
+                  flags=re.S | re.I)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text[:12000]
+
+
+def tool_remember(args, ctx):
+    path = os.path.join(REPO_ROOT, "state", "assistant-memory.md")
+    today = datetime.date.today().isoformat()
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(f"- {today}: {args['note'].strip()}\n")
+    git("add", "state/assistant-memory.md")
+    git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
+        "commit", "-m", "assistant: memory note")
+    push_main()
+    return "remembered"
+
+
+def tool_request_pr(args, ctx):
     token = os.environ["GITHUB_TOKEN"].strip()
     http(
         f"{GITHUB_URL}/repos/{REPO}/actions/workflows/assistant-apply.yml/dispatches",
         "POST",
         {"ref": "main",
-         "inputs": {"instruction": instruction[:1000], "channel": channel}},
+         "inputs": {"instruction": args["instruction"][:1000],
+                    "channel": ctx["channel"]}},
         {"Authorization": f"Bearer {token}",
          "Accept": "application/vnd.github+json"},
     )
+    return "PR workflow dispatched; the link will arrive in Slack when open"
 
 
-def append_memory(lines):
-    """Persist durable notes to state/assistant-memory.md as a commit."""
-    import datetime
-    path = os.path.join(REPO_ROOT, "state", "assistant-memory.md")
-    today = datetime.date.today().isoformat()
-    with open(path, "a", encoding="utf-8") as f:
-        for line in lines:
-            f.write(f"- {today}: {line.strip()}\n")
-    git("add", "state/assistant-memory.md")
-    git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
-        "commit", "-m", "assistant: memory note")
-    push_main()
+TOOL_IMPL = {
+    "read_file": tool_read_file,
+    "list_files": tool_list_files,
+    "edit_file": tool_edit_file,
+    "write_file": tool_write_file,
+    "run": tool_run,
+    "git_diff": tool_git_diff,
+    "commit_and_push": tool_commit_and_push,
+    "revert_last": tool_revert_last,
+    "web_search": tool_web_search,
+    "fetch_url": tool_fetch_url,
+    "remember": tool_remember,
+    "request_pr": tool_request_pr,
+}
+
+
+def kimi_call(messages, tools=None, max_tokens=None):
+    body = {
+        "model": os.environ.get("FIREWORKS_MODEL",
+                                "accounts/fireworks/models/kimi-k3"),
+        "max_tokens": max_tokens or int(os.environ.get("ASSISTANT_MAX_TOKENS",
+                                                       "16000")),
+        "temperature": 0.3,
+        "messages": messages,
+    }
+    if tools:
+        body["tools"] = tools
+    resp = http(FIREWORKS_URL, "POST", body,
+                {"Authorization": f"Bearer {os.environ['FIREWORKS_API_KEY'].strip()}"})
+    return resp["choices"][0]["message"]
 
 
 def respond(text, channel, ts, thread_ts=None):
-    """Route one message from Firas and act on it. Used by both the instant
-    listener and the fallback poller."""
+    """Run the agent loop for one message from Firas. Used by both the
+    instant listener and the fallback poller."""
+    sync_to_main()
     convo = recent_conversation(channel, thread_ts)
-    context = build_context()
-    raw = kimi(ROUTER_SYSTEM, convo + [{
+    snapshot = build_snapshot()
+    messages = [{"role": "system", "content": AGENT_SYSTEM}]
+    messages += convo
+    messages.append({
         "role": "user",
-        "content": f"SYSTEM STATE SNAPSHOT (current):\n{context}\n\n"
-                   f"FIRAS'S MESSAGE:\n{text}",
-    }])
-    plan = parse_plan(raw)
-    mode = plan.get("mode", "answer")
-
-    if mode == "change" and plan.get("files"):
-        held = guard_change(plan, text)
-        if held:
-            reply = held
-        else:
+        "content": f"SYSTEM STATE SNAPSHOT (current, {datetime.datetime.now().isoformat()}):\n"
+                   f"{snapshot}\n\nFIRAS'S MESSAGE:\n{text}",
+    })
+    ctx = {"user_text": text, "channel": channel, "committed": None}
+    reply = None
+    for _ in range(MAX_LOOP):
+        msg = kimi_call(messages, tools=TOOLS)
+        tool_calls = msg.get("tool_calls") or []
+        if not tool_calls:
+            reply = (msg.get("content") or "").strip()
+            break
+        messages.append({"role": "assistant",
+                         "content": msg.get("content") or "",
+                         "tool_calls": tool_calls})
+        for tc in tool_calls:
+            name = tc["function"]["name"]
             try:
-                reply = execute_change(plan)
-            except Exception as e:
-                reply = f"Change failed before landing: {str(e)[:400]}"
-    elif mode == "revert":
-        try:
-            reply = execute_revert()
-        except Exception as e:
-            reply = f"Revert failed: {str(e)[:400]}"
-    elif mode == "pr":
-        dispatch_apply(text, channel)
-        reply = plan.get("reply") or ("Preparing a pull request; the link "
-                                      "lands here when it is open.")
-    else:
-        reply = plan.get("reply") or "I did not get a usable answer, try rephrasing."
-
+                args = json.loads(tc["function"].get("arguments") or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            impl = TOOL_IMPL.get(name)
+            if impl is None:
+                result = f"error: unknown tool {name}"
+            else:
+                try:
+                    result = impl(args, ctx)
+                except Exception as e:
+                    result = f"error: {str(e)[:600]}"
+            messages.append({"role": "tool",
+                             "tool_call_id": tc.get("id", name),
+                             "content": str(result)[:16000]})
+    if reply is None:
+        reply = ("I hit the tool-step limit before finishing. State of the "
+                 "working tree was reset; nothing partial was committed."
+                 if not ctx["committed"] else
+                 f"Hit the step limit after committing {ctx['committed']}; "
+                 f"check the commit and tell me if anything is off.")
+        if not ctx["committed"]:
+            sync_to_main()
     slack("chat.postMessage", {"channel": channel, "text": reply[:39000],
                                "thread_ts": thread_ts or ts})
     slack("reactions.add", {"channel": channel, "name": HANDLED_REACTION,
                             "timestamp": ts})
-    remember = [x for x in (plan.get("remember") or []) if str(x).strip()]
-    if remember:
-        try:
-            append_memory([str(x) for x in remember][:5])
-        except Exception as e:
-            print(f"respond: memory append failed: {e}")
 
 
 # ------------------------------------------------------------------ modes
@@ -451,8 +649,6 @@ def chat():
         if is_heartbeat_directive(m.get("text", "")):
             continue
         pending.append(m)
-    # Thread replies never appear in conversations.history, so sweep the
-    # threads of recent top-level messages for unhandled replies too.
     for m in history:
         if not m.get("reply_count"):
             continue
@@ -498,26 +694,36 @@ Rules:
 - If the instruction is unsafe or too ambiguous, return {"summary": "REFUSED: <reason>", "branch_hint": "refused", "files": []}"""
 
 
+def parse_plan(raw):
+    raw = raw.strip()
+    raw = re.sub(r"^```(json)?\s*|\s*```$", "", raw, flags=re.M).strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return {"summary": "REFUSED: model did not return JSON",
+                "branch_hint": "refused", "files": []}
+
+
 def apply_mode():
     instruction = os.environ.get("APPLY_INSTRUCTION", "").strip()
     channel = os.environ.get("APPLY_CHANNEL", "").strip() or dm_channel()
     if not instruction:
         print("apply: no instruction provided")
         sys.exit(1)
-
     listing = git("ls-files")
     relevant = []
     for rel in listing.splitlines():
         if rel.startswith((".github/", "deploy/", "assistant/")):
             continue
-        relevant.append(f"### {rel}\n{read_file(rel, 8000)}")
+        relevant.append(f"### {rel}\n{read_repo(rel, 8000)}")
     prompt = (
         f"REPOSITORY FILE LISTING:\n{listing}\n\n"
         f"FILE CONTENTS:\n\n" + "\n\n".join(relevant) +
         f"\n\nINSTRUCTION FROM FIRAS:\n{instruction}"
     )
-    plan = parse_plan(kimi(APPLY_SYSTEM,
-                           [{"role": "user", "content": prompt}]))
+    msg = kimi_call([{"role": "system", "content": APPLY_SYSTEM},
+                     {"role": "user", "content": prompt}])
+    plan = parse_plan(msg.get("content") or "")
     if plan.get("summary", "").startswith("REFUSED") or not plan.get("files"):
         slack("chat.postMessage", {
             "channel": channel,
@@ -525,15 +731,12 @@ def apply_mode():
                     f"{plan.get('summary', 'No files produced.')}",
         })
         return
-
     slug = re.sub(r"[^a-z0-9-]", "", plan.get("branch_hint", "change")
                   .lower().replace(" ", "-"))[:40] or "change"
     branch = f"assistant/{int(time.time())}-{slug}"
     git("checkout", "-b", branch)
     for f in plan["files"]:
-        path = os.path.normpath(f["path"])
-        if path.startswith("..") or os.path.isabs(path):
-            raise RuntimeError(f"unsafe path in plan: {f['path']}")
+        path = safe_path(f["path"])
         full = os.path.join(REPO_ROOT, path)
         os.makedirs(os.path.dirname(full) or REPO_ROOT, exist_ok=True)
         with open(full, "w", encoding="utf-8") as fh:
@@ -542,7 +745,6 @@ def apply_mode():
     git("-c", "user.name=assistant", "-c", f"user.email={ASSISTANT_AUTHOR}",
         "commit", "-m", f"assistant: {plan['summary']}"[:120])
     git("push", "origin", branch)
-
     token = os.environ["GITHUB_TOKEN"].strip()
     pr = http(
         f"{GITHUB_URL}/repos/{REPO}/pulls", "POST",
