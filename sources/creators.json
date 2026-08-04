@@ -1,21 +1,23 @@
 {
- "updated": "2026-08-03T15:45:00-05:00",
- "note": "Seed list. status 'seed' means URL unverified. Resolution note 2026-08-03: harvestapi/linkedin-profile-search rejects small runs with max-total-charge-usd-below-minimum, a $0.10 floor per run, which makes actor-based resolution cost $0.10 per creator. Resolve URLs with the built-in web tools instead (all five resolved this way on 2026-08-03, each confirmed against the person's own site or profile page) and reserve the actor for names the open web cannot resolve. Retro prunes persistent low-signal entries and may add up to 2 per week (Tier A write).",
- "rotation_cursor": 17,
+ "updated": "2026-08-03T19:30:00-05:00",
+ "note": "Seed list. status 'seed' means URL unverified. Resolution note 2026-08-03: harvestapi/linkedin-profile-search rejects small runs with max-total-charge-usd-below-minimum, a $0.10 floor per run, which makes actor-based resolution cost $0.10 per creator. Resolve URLs with the built-in web tools instead (all five resolved this way on 2026-08-03, each confirmed against the person's own site or profile page) and reserve the actor for names the open web cannot resolve. Retro prunes persistent low-signal entries and may add up to 2 per week (Tier A write). Sweep note 2026-08-03 19:30: all active profiles were swept once on 2026-08-03, so the cursor resets to 0 and a profile is only re-swept when its last_swept is more than a day old.",
+ "rotation_cursor": 0,
  "tracked": [
   {
    "name": "Ethan Mollick",
    "lane": "ai-adoption",
    "why": "Wharton professor, highest-signal practical AI adoption analysis",
    "linkedin": "https://www.linkedin.com/in/emollick/",
-   "status": "active"
+   "status": "active",
+   "last_swept": "2026-08-03T17:50:00-05:00"
   },
   {
    "name": "Andrew Ng",
    "lane": "ai-engineering",
    "why": "DeepLearning.AI and AI Fund, engineering-first framing, large reach",
    "linkedin": "https://www.linkedin.com/in/andrewyng/",
-   "status": "active"
+   "status": "active",
+   "last_swept": "2026-08-03T17:50:00-05:00"
   },
   {
    "name": "Allie K. Miller",
@@ -36,10 +38,9 @@
   {
    "name": "Andriy Burkov",
    "lane": "ml-engineering",
-   "why": "ML author, no-hype technical takes",
-   "linkedin": null,
-   "status": "seed",
-   "resolve": true
+   "why": "ML author, no-hype technical takes; Influencer-tier reach. Resolved 2026-08-03 from his own profile page and post URLs",
+   "linkedin": "https://www.linkedin.com/in/andriyburkov",
+   "status": "active"
   },
   {
    "name": "Zain Kahn",
@@ -76,10 +77,9 @@
   {
    "name": "Shawn Wang",
    "lane": "ai-engineering",
-   "why": "swyx, AI engineering discourse, Latent Space",
-   "linkedin": null,
-   "status": "seed",
-   "resolve": true
+   "why": "swyx, AI engineering discourse. Do not sweep: his own LinkedIn profile states he has effectively quit LinkedIn except the inbox and publishes on the open web instead. Resolved 2026-08-03, retro should prune or replace",
+   "linkedin": "https://www.linkedin.com/in/shawnswyxwang",
+   "status": "inactive"
   },
   {
    "name": "Bob Ambrogi",
