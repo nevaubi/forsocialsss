@@ -1,6 +1,6 @@
 {
- "updated": "2026-08-03T19:30:00-05:00",
- "note": "Seed list. status 'seed' means URL unverified. Resolution note 2026-08-03: harvestapi/linkedin-profile-search rejects small runs with max-total-charge-usd-below-minimum, a $0.10 floor per run, which makes actor-based resolution cost $0.10 per creator. Resolve URLs with the built-in web tools instead (all five resolved this way on 2026-08-03, each confirmed against the person's own site or profile page) and reserve the actor for names the open web cannot resolve. Retro prunes persistent low-signal entries and may add up to 2 per week (Tier A write). Sweep note 2026-08-03 19:30: all active profiles were swept once on 2026-08-03, so the cursor resets to 0 and a profile is only re-swept when its last_swept is more than a day old.",
+ "updated": "2026-08-03T21:00:00-05:00",
+ "note": "Seed list. status 'seed' means URL unverified. Resolution note 2026-08-03: harvestapi/linkedin-profile-search rejects small runs with max-total-charge-usd-below-minimum, a $0.10 floor per run, which makes actor-based resolution cost $0.10 per creator. Resolve URLs with the built-in web tools instead (all five resolved this way on 2026-08-03, each confirmed against the person's own site or profile page) and reserve the actor for names the open web cannot resolve. Retro prunes persistent low-signal entries and may add up to 2 per week (Tier A write). Sweep note 2026-08-03 19:30: all active profiles were swept once on 2026-08-03, so the cursor resets to 0 and a profile is only re-swept when its last_swept is more than a day old. Sweep note 2026-08-03 21:00: Burkov was the only eligible profile this cycle (every other active profile was swept within the previous six hours), so the sweep cost $0.006 rather than a full round.",
  "rotation_cursor": 0,
  "tracked": [
   {
@@ -38,9 +38,10 @@
   {
    "name": "Andriy Burkov",
    "lane": "ml-engineering",
-   "why": "ML author, no-hype technical takes; Influencer-tier reach. Resolved 2026-08-03 from his own profile page and post URLs",
+   "why": "ML author, no-hype technical takes; Influencer-tier reach. Resolved 2026-08-03 from his own profile page and post URLs. Swept for the first time 2026-08-03 21:00 CT, 3 posts: two were the same weekly newsletter blurb posted twice (07-30 and 08-01, 69 and 63 reactions) and one was disclosed sponsored content (07-31, 51 reactions). Yield for this board is low and mostly link round-ups; retro should judge whether the lane is worth a slot",
    "linkedin": "https://www.linkedin.com/in/andriyburkov",
-   "status": "active"
+   "status": "active",
+   "last_swept": "2026-08-03T21:00:00-05:00"
   },
   {
    "name": "Zain Kahn",
