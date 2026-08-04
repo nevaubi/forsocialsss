@@ -2,7 +2,7 @@
 
 913 of them landed in the first seven months of 2026. The rest of the curve: 16 in 2023, 58 in 2024, 821 in 2025.
 
-That is the 1 August snapshot of Damien Charlotin's AI Hallucination Cases database. I pulled the CSV and counted it myself. The live page reads 1,825 today.
+That is the 1 August snapshot of Damien Charlotin's AI Hallucination Cases database. I pulled the CSV and counted it myself. The live page read 1,825 on 4 August.
 
 Three things stood out.
 
