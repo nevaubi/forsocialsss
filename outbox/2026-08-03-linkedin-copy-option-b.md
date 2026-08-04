@@ -1,6 +1,6 @@
 $110,204 against two lawyers, and the claims dismissed with prejudice.
 
-That is the largest penalty in a database of 1,822 court decisions dealing with hallucinated AI content. 913 of them landed in the first seven months of 2026.
+That is the largest penalty in a database of 1,822 court decisions dealing with hallucinated AI content, counted at its 1 August snapshot. 913 of them landed in the first seven months of 2026. The live page reads 1,825 today.
 
 I downloaded the CSV from Damien Charlotin's database and did my own counting.
 

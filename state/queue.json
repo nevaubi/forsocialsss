@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-03T17:45:00-05:00",
+  "updated": "2026-08-04T11:40:00-05:00",
   "drafts": [
     {
       "id": "agent-security-incidents-20260802",
@@ -310,7 +310,7 @@
         "counterpoint": "The steelman: most of this volume is self-represented filers with no process to fix, the median outcome is a warning, and the median dollar sanction is under $2,000, so a firm could read the record as noise rather than risk. The report answers that with the tail (firm-level orders, contempt, referrals) and with the permanence of the public opinion, and it says the median outcome plainly instead of hiding it.",
         "artifact": "1,603 of 1,808 dated decisions name no AI tool, and $1,201,678 of dollar-denominated sanctions sits on top of a record that mostly cannot say which system produced the error."
       },
-      "post_text": "1,822 court decisions now deal with hallucinated AI content.\n\n913 of them landed in the first seven months of 2026. The rest of the curve: 16 in 2023, 58 in 2024, 821 in 2025.\n\nI pulled the CSV from Damien Charlotin's AI Hallucination Cases database and counted it myself. Three things stood out.\n\nThe money is real, and it is not only hitting individuals.\n\n310 decisions record a monetary penalty. In the dollar-denominated slice, 160 sanctions total about $1.2 million.\n\nThe largest is $110,204 against two lawyers, with the claims dismissed with prejudice. One order put $31,100 on two law firms jointly.\n\nThe lasting cost is not the fine. 126 decisions carry a professional sanction such as a bar referral.\n\nThose opinions are public, indexed and permanent. A fine gets paid once. The search result does not expire.\n\nThe part I have not seen discussed: in about 89% of the dated decisions, no tool is named.\n\nThe court inferred AI use from the output itself, or the record just says unidentified.\n\nSo nobody can measure which system fails most often, and a named vendor usually disputes the attribution.\n\nThat is a logging problem, not a legal one.\n\nFour controls carry most of the weight:\n\n- Bind citations to retrieval. If retrieval did not return it, the system does not render it.\n- Check existence at egress, on the document that leaves, not in the chat.\n- Match quoted language against the source text. 493 decisions involve false quotes, not invented cases.\n- Store model, version, prompt and retrieved document IDs with the output.\n\nNone of this needs a better model. It needs a verification step with the power to block, and a log that survives the question.\n\nFull report attached. 5 pages, 5 charts, method and limits, every number sourced.",
+      "post_text": "1,822 court decisions deal with hallucinated AI content.\n\n913 of them landed in the first seven months of 2026. The rest of the curve: 16 in 2023, 58 in 2024, 821 in 2025.\n\nThat is the 1 August snapshot of Damien Charlotin's AI Hallucination Cases database. I pulled the CSV and counted it myself. The live page reads 1,825 today.\n\nThree things stood out.\n\nThe money is real, and it is not only hitting individuals.\n\n310 decisions record a monetary penalty. In the dollar-denominated slice, 160 sanctions total about $1.2 million.\n\nThe largest is $110,204 against two lawyers, with the claims dismissed with prejudice. One order put $31,100 on two law firms jointly.\n\nThe lasting cost is not the fine. 126 decisions carry a professional sanction such as a bar referral.\n\nThose opinions are public, indexed and permanent. A fine gets paid once. The search result does not expire.\n\nThe part I have not seen discussed: in about 89% of the dated decisions, no tool is named.\n\nThe court inferred AI use from the output itself, or the record just says unidentified.\n\nSo nobody can measure which system fails most often, and a named vendor usually disputes the attribution.\n\nThat is a logging problem, not a legal one.\n\nFour controls carry most of the weight:\n\n- Bind citations to retrieval. If retrieval did not return it, the system does not render it.\n- Check existence at egress, on the document that leaves, not in the chat.\n- Match quoted language against the source text. 493 decisions involve false quotes, not invented cases.\n- Store model, version, prompt and retrieved document IDs with the output.\n\nNone of this needs a better model. It needs a verification step with the power to block, and a log that survives the question.\n\nFull report attached. 5 pages, 5 charts, method and limits, every number sourced.",
       "format": "document",
       "predicted": {
         "band": "quiet",
@@ -319,7 +319,14 @@
       "delivered_at": "2026-08-03T13:33:00-05:00",
       "slack_ts": "1785781994.770479",
       "resolution": null,
-      "artifact_path": "outbox/2026-08-03-the-sanctions-record.pdf"
+      "artifact_path": "outbox/2026-08-03-the-sanctions-record.pdf",
+      "revisions": [
+        {
+          "at": "2026-08-04T11:40:00-05:00",
+          "reason": "Live-count staleness caught before he posted. The copy opened '1,822 court decisions now deal with hallucinated AI content', which reads as a present count, and the Charlotin page updated today to 1,825 cases identified, last updated 4 August. The report PDF was already snapshot-labelled (cover reads 'Data as published 1 August 2026', Method section repeats it), so the artifact needed no change. Copy now anchors the count to the 1 August snapshot and names the live number, which makes the curve claim stronger rather than weaker. Same one-line fix applied to option B in outbox. Self-initiated correction, no founder edit, argument and evidence untouched.",
+          "words": 311
+        }
+      ]
     },
     {
       "id": "retrieval-only-legal-research-20260803",

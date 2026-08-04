@@ -1,8 +1,10 @@
-1,822 court decisions now deal with hallucinated AI content.
+1,822 court decisions deal with hallucinated AI content.
 
 913 of them landed in the first seven months of 2026. The rest of the curve: 16 in 2023, 58 in 2024, 821 in 2025.
 
-I pulled the CSV from Damien Charlotin's AI Hallucination Cases database and counted it myself. Three things stood out.
+That is the 1 August snapshot of Damien Charlotin's AI Hallucination Cases database. I pulled the CSV and counted it myself. The live page reads 1,825 today.
+
+Three things stood out.
 
 The money is real, and it is not only hitting individuals.
 
